@@ -8,7 +8,7 @@
 
 ## Dashboard
 
-[Sentry Dashboard](https://sentry.io/organizations/mkm/issues/?project=4511344635543552)
+[Sentry Dashboard](https://sentry.io/organizations/FL4LL/issues/?project=4511344635543552)
 
 ## Integration (Next.js)
 
@@ -64,4 +64,4 @@ try {
 ## Links
 
 - [Sentry Docs](https://docs.sentry.io/platforms/javascript/guides/nextjs/)
-- [Your Sentry Organization](https://sentry.io/organizations/mkm/)
+- [Your Sentry Organization](https://sentry.io/organizations/FL4LL/)
