@@ -10,7 +10,10 @@ Registry of every system your AIOS can reach. Filled by `/onboard` from Q4-Q7 an
 | 4 | Communication | WhatsApp + Phone | not yet connected | — | — |
 | 5 | Project / task tracking | GitHub Issues | mcp / gh cli | oauth | 2026-05-06 |
 | 6 | Error tracking | Sentry | sdk | dsn | 2026-05-06 |
-| 7 | Knowledge / files | Google Drive + Desktop | not yet connected | — | — |
+| 7 | Product analytics | Posthog | sdk | token | 2026-05-06 |
+| 8 | Task / knowledge hub | Notion | api | token | 2026-05-06 |
+| 9 | Tool automation | Make.com | scenarios | oauth | deferred |
+| 10 | Knowledge / files | Google Drive + Desktop | not yet connected | — | — |
 
 **Mechanism options:** `mcp` (MCP server), `script` (Python/Bash hitting an API, in `scripts/`), `export` (CSV/JSON dump pipeline), `key+ref` (`.env` key + `references/{tool}-api.md` guide), `not yet connected`.
 
