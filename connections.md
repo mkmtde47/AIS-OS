@@ -14,6 +14,8 @@ Registry of every system your AIOS can reach. Filled by `/onboard` from Q4-Q7 an
 | 8 | Task / knowledge hub | Notion | api | token | 2026-05-06 |
 | 9 | Tool automation | Make.com | scenarios | oauth | deferred |
 | 10 | Knowledge / files | Google Drive + Desktop | not yet connected | — | — |
+| 11 | Sheahaircare ops | Obsidian Vault | agent + docs | read-only | 2026-05-06 |
+| 12 | Sheahaircare health | MongoDB + Paystack | api | credentials | setup pending |
 
 **Mechanism options:** `mcp` (MCP server), `script` (Python/Bash hitting an API, in `scripts/`), `export` (CSV/JSON dump pipeline), `key+ref` (`.env` key + `references/{tool}-api.md` guide), `not yet connected`.
 
