@@ -1,11 +1,11 @@
-# Sheahaircare Daily Health — 2026-05-11
+# Sheahaircare Daily Health — 2026-05-12
 
 **Status:** WARNING
-**Appointments (24h):** UNKNOWN — PostHog MCP not connected
+**Appointments (24h):** UNKNOWN — PostHog not connected
 **Errors (24h):** 0
 **Uptime:** UNKNOWN — Vercel personal account not resolvable via MCP
-**Top Issue:** Monitoring gaps persist: Vercel uptime and PostHog appointment data unreachable from AIOS
-**Recommendation:** Wire Vercel project ID into connections.md and connect PostHog via script or MCP to unlock full health visibility
+**Top Issue:** Monitoring gaps persist (Day 2) — Vercel, PostHog, MongoDB still not wired
+**Recommendation:** Wire Vercel project ID + PostHog token today; each gap is a blind spot in production health
 
 ---
 
@@ -13,9 +13,9 @@
 
 | System | Status | Note |
 |---|---|---|
-| Vercel | UNKNOWN | Personal account has no team ID; sheahaircare.vercel.app not resolvable via MCP |
-| Sentry | HEALTHY | 0 unresolved issues, 0 error events in last 24h |
-| PostHog | UNKNOWN | SDK listed in connections.md but no MCP tool or script available |
+| Vercel | UNKNOWN | Personal account has no team ID; MCP requires teamId to resolve |
+| Sentry | HEALTHY | 0 unresolved issues in last 24h |
+| PostHog | UNKNOWN | Token is placeholder in references/posthog-api.md — not connected |
 | MongoDB | UNKNOWN | Listed as "setup pending" in connections.md |
 
 ## Sentry Detail
@@ -25,11 +25,16 @@
 - Trend vs yesterday: flat (0 → 0)
 - Source: https://fl4ll.sentry.io
 
-## Monitoring Gaps (action required to resolve)
-1. **Vercel** — Add your Sheahaircare project ID/slug to `connections.md`. Then this check can pull live uptime + build status.
-2. **PostHog** — Add a script in `scripts/posthog-appointments.py` hitting the PostHog events API with your project token to fetch daily appointment counts.
-3. **MongoDB** — Add connection string to `.env` to verify DB health each morning.
+## Monitoring Gaps (blocking full health visibility)
+
+| Gap | Fix | Effort |
+|---|---|---|
+| Vercel | Add Sheahaircare project URL or ID to connections.md | 5 min |
+| PostHog | Replace placeholder token in posthog-api.md; add script in scripts/ | 15 min |
+| MongoDB | Add connection string to .env; add health-check script | 20 min |
+
+These three gaps have persisted since yesterday. Until they're wired, this report is half-blind.
 
 ---
 
-_Generated: 2026-05-11 08:00 SAST_
+_Generated: 2026-05-12 08:00 SAST_
