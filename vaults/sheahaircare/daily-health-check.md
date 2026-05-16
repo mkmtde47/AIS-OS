@@ -1,99 +1,81 @@
-# Sheahaircare Daily Health — 2026-05-15
+# Sheahaircare Daily Health — 2026-05-16
 
 **Status:** CRITICAL
-**Appointments (24h):** UNKNOWN — PostHog not connected
-**Errors (24h):** 97 events across 12 unresolved issues
-**Uptime:** UNKNOWN — Vercel personal account not resolvable via MCP
-**Top Issue:** `Cannot find module './6141.js'` — 58 events (broken build/deployment)
-**Recommendation:** Redeploy immediately. A broken build chunk is cascading into 58+ errors. Separately, MongoDB DNS is timing out — check Atlas for cluster pause or network issue.
+**Appointments (24h):** N/A — PostHog SDK-only, no MCP access
+**Errors (24h):** 48 events across 16 issues
+**Uptime:** N/A — Vercel personal account, no team ID configured
+**Top Issue:** MongoDB DNS timeout — `querySrv ETIMEOUT _mongodb._tcp.cluster0.slbpldp.mongodb.net` (13 events)
+**Recommendation:** Fix MongoDB Atlas connection immediately. Check IP whitelist, cluster pause status, and connection string.
 
 ---
 
-## Detail
+## System Status
 
-| System | Status | Note |
+| System | Status | Notes |
 |---|---|---|
-| Vercel | UNKNOWN | Personal account; no team ID; MCP can't resolve without one |
-| Sentry | CRITICAL | 97 error events, 12 unresolved issues — up from 22 two days ago |
-| MongoDB | CRITICAL | DNS timeout: `querySrv ETIMEOUT _mongodb._tcp.cluster0.slbpldp.mongodb.net` |
-| PostHog | UNKNOWN | Token still placeholder in references/posthog-api.md |
+| Vercel | UNKNOWN | Personal account — no team ID. Wire project ID to enable uptime tracking. |
+| MongoDB Atlas | CRITICAL | DNS timeout on cluster0.slbpldp.mongodb.net. DB unreachable from app. |
+| PostHog | UNKNOWN | SDK-only connection — no MCP. Appointment count unavailable. |
+| Sentry | CONNECTED | 16 unresolved issues, 48 events in last 24h. |
 
 ---
 
 ## Sentry Issues (last 24h)
 
-| Issue | Title | Events | Culprit |
+| Issue | Error | Events | Users |
 |---|---|---|---|
-| JAVASCRIPT-NEXTJS-7 | Cannot find module './6141.js' | 58 | `/_error` |
-| SHEAHAIRCARE-4 | Dynamic server usage: /[slug] can't render statically | 17 | `/(public)/[slug]` |
-| SHEAHAIRCARE-5 | Server Components render error (digest omitted) | 6 | `/(public)/[slug]/page` |
-| JAVASCRIPT-NEXTJS-3 | Server Action not found on server | 5 | `/onboarding` |
-| JAVASCRIPT-NEXTJS-6 | Unknown error | 3 | `/:slug` |
-| SHEAHAIRCARE-9 | TypeError: Cannot read properties of undefined (reading 'call') | 2 | `/_error` |
-| SHEAHAIRCARE-7 | next/image: hostname not configured | 2 | `/[slug]` |
-| SHEAHAIRCARE-A | TypeError: __webpack_require__.a is not a function | 1 | `/dashboard/[slug]` |
-| SHEAHAIRCARE-8 | **querySrv ETIMEOUT** _mongodb._tcp.cluster0.slbpldp.mongodb.net | 1 | `/` (Page Server Component) |
-| JAVASCRIPT-NEXTJS-5 | Hydration Error | 1 | `localhost:3000/96-locks-n-styles` |
-| JAVASCRIPT-NEXTJS-4 | Hydration failed — SSR/client mismatch | 1 | `/:slug` |
-| SHEAHAIRCARE-6 | eval | 1 | `/_error` |
+| JAVASCRIPT-NEXTJS-B | querySrv ETIMEOUT _mongodb._tcp.cluster0.slbpldp.mongodb.net | 11 | 1 |
+| JAVASCRIPT-NEXTJS-8 | TypeError: Cannot read properties of undefined (reading 'Autocomplete') | 7 | 1 |
+| SHEAHAIRCARE-B | ReferenceError: headline is not defined | 5 | 1 |
+| SHEAHAIRCARE-C | Error: Router state header could not be parsed | 3 | 1 |
+| JAVASCRIPT-NEXTJS-9 | ModuleParseError: 'monogramFor' already declared | 3 | 1 |
+| JAVASCRIPT-NEXTJS-E | ReferenceError: MarketplaceThemeToggle is not defined | 2 | 2 |
+| SHEAHAIRCARE-D | ReferenceError: MarketplaceThemeToggle is not defined | 2 | 1 |
+| JAVASCRIPT-NEXTJS-D | TypeError: Cannot read properties of undefined (reading 'displayName') | 2 | 1 |
+| JAVASCRIPT-NEXTJS-C | TypeError: Component is not a function | 2 | 2 |
+| JAVASCRIPT-NEXTJS-A | ReferenceError: headline is not defined | 2 | 1 |
+| SHEAHAIRCARE-8 | querySrv ETIMEOUT _mongodb._tcp.cluster0.slbpldp.mongodb.net | 2 | 1 |
+| JAVASCRIPT-NEXTJS-3 | UnrecognizedActionError: Server Action not found | 2 | 1 |
+| SHEAHAIRCARE-F | Error: Cannot find module './vendor-chunks/@sentry.js' | 2 | 1 |
+| JAVASCRIPT-NEXTJS-F | Error: Could not load "util" | 1 | 1 |
+| SHEAHAIRCARE-E | Error: Cannot find module './1893.js' | 1 | 1 |
+| JAVASCRIPT-NEXTJS-6 | Unknown error | 1 | 1 |
 
-**Total events:** 97 (threshold: >5 → flag; >50 → critical)
-**Org:** fl4ll.sentry.io | [View in Sentry](https://fl4ll.sentry.io/issues/?query=is%3Aunresolved+lastSeen%3A-24h)
+**Total events:** 48 | [View in Sentry](https://fl4ll.sentry.io/issues/?query=is%3Aunresolved+lastSeen%3A-24h)
 
 ---
 
-## Root Cause Analysis
+## Priority Actions
 
-### Issue 1: Broken build chunk (PRIMARY — fix first)
-`JAVASCRIPT-NEXTJS-7` — `Cannot find module './6141.js'` with 58 events is the dominant issue. This is a webpack chunk that's referenced in the build manifest but missing from the output. It cascades into several `/_error` and `getInitialProps` failures across the site.
-
-**Fix:**
-1. Trigger a fresh Vercel deployment (force redeploy — clear cache)
-2. If it persists, check recent commits for dynamic imports or code splitting changes
-3. Confirm error stops after redeploy
-
-### Issue 2: MongoDB unreachable (INFRASTRUCTURE)
-`SHEAHAIRCARE-8` — `querySrv ETIMEOUT` means DNS resolution for the MongoDB Atlas cluster is failing. The app homepage (`/`) hits the DB on load — this makes the homepage broken for any user that hits this.
-
-**Fix:**
-1. Log into MongoDB Atlas — check if cluster is paused (free tier auto-pauses after 60 days idle)
-2. If paused: resume cluster
-3. If running: check Atlas network access list for Vercel IP ranges
-4. Long-term: add MongoDB health-check script to `scripts/`
-
-### Issue 3: Dynamic server usage on /[slug]
-`SHEAHAIRCARE-4` — 17 events. The slug route is trying to read `searchParams` in a statically rendered page. This is a Next.js 15 breaking change.
-
-**Fix:**
-1. Await `searchParams` properly: `const params = await searchParams`
-2. Or add `export const dynamic = 'force-dynamic'` to the route
-
-### Issue 4: next/image unconfigured hostname
-`SHEAHAIRCARE-7` — `encrypted-tbn0.gstatic.com` not in `next.config.js`. Low priority but easy fix.
-
-**Fix:** Add hostname to `images.remotePatterns` in `next.config.js`
+1. **[P0] MongoDB Atlas — resume or unblock.** 13 events confirm DNS timeout on the cluster. Log into Atlas: check if cluster is paused (free tier auto-pauses at 60 days idle). If running, check IP Access List for Vercel's egress IPs.
+2. **[P1] Fix `headline` ReferenceError** — 7 events on homepage (`GET /`). Variable used before defined. Check imports and prop defaults.
+3. **[P1] Fix `MarketplaceThemeToggle` ReferenceError** — 4 events across two issues. Component referenced but not imported.
+4. **[P1] Fix `Autocomplete` TypeError** — 7 events. Likely a Google Maps or MUI component loaded before its parent is initialized.
+5. **[P2] Wire Vercel project ID** to enable uptime tracking in future reports.
+6. **[P2] Wire PostHog MCP** to enable appointment count tracking.
 
 ---
 
 ## Trend
 
-| Date | Errors | Issues | Top Problem |
+| Date | Events | Issues | Top Problem |
 |---|---|---|---|
 | 2026-05-13 | 22 | 3 | NextAuth Invalid URL |
 | 2026-05-15 | 97 | 12 | Broken build chunk + MongoDB down |
+| 2026-05-16 | 48 | 16 | MongoDB DNS timeout + component ReferenceErrors |
 
-Errors up **4.4x** in 2 days. Previous auth issue appears resolved but replaced by a build regression and infrastructure failure.
+Errors down **51%** from yesterday — build chunk issue resolved. MongoDB and component errors are now the dominant problems. Issue count up (16 vs 12) despite lower event volume, suggesting new code paths are hitting errors.
 
 ---
 
-## Monitoring Gaps (Day 5 — still unresolved)
+## Monitoring Gaps
 
 | Gap | Fix | Effort |
 |---|---|---|
 | Vercel | Add Sheahaircare project ID to connections.md | 5 min |
-| PostHog | Replace placeholder token; add script in `scripts/` | 15 min |
-| MongoDB | Add connection string to `.env`; add health-check script | 20 min |
+| PostHog | Replace placeholder token; wire MCP or script | 15 min |
+| MongoDB | Add health-check script to `scripts/` | 20 min |
 
 ---
 
-_Generated: 2026-05-15 08:00 SAST_
+_Generated: 2026-05-16 08:00 SAST_
