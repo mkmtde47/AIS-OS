@@ -1,11 +1,11 @@
-# Sheahaircare Daily Health — 2026-05-20
+# Sheahaircare Daily Health — 2026-05-21
 
 **Status:** WARNING
 **Appointments (24h):** N/A — PostHog not wired
-**Errors (24h):** 4 events, 1 open issue (SHEAHAIRCARE-R)
-**Uptime:** UNKNOWN — custom domain ECONNREFUSED; .vercel.app returns 403 (deployment exists, auth-protected)
-**Top Issue:** `SecurityError: The operation is insecure.` — 4 events, new today
-**Recommendation:** Investigate SHEAHAIRCARE-R. Likely a cross-origin or iframe security policy issue. Check browser console on staging.
+**Errors (24h):** UNKNOWN — Sentry MCP approval required
+**Uptime:** UNKNOWN — Vercel MCP approval required
+**Top Issue:** SHEAHAIRCARE-R (`SecurityError: The operation is insecure.`) — carried from yesterday, unresolved
+**Recommendation:** Approve Sentry + Vercel MCP tools in Claude Code settings to enable live data. Investigate SHEAHAIRCARE-R cross-origin issue before error count spikes.
 
 ---
 
@@ -13,26 +13,24 @@
 
 | System | Status | Notes |
 |---|---|---|
-| Vercel | UNKNOWN | Personal account — no team ID. Custom domain (sheahaircare.co.za) ECONNREFUSED. .vercel.app responds 403 (deployment live, auth-protected). |
-| MongoDB Atlas | ASSUMED OK | No DB errors in Sentry today. Same as yesterday. |
-| PostHog | UNKNOWN | SDK-only — no MCP. Appointment count unavailable. |
-| Sentry | WARNING | 4 error events. 1 open issue (new). Below 5-error threshold but new issue type. |
+| Vercel | UNKNOWN | MCP call blocked — needs approval. Yesterday: custom domain ECONNREFUSED, .vercel.app 403 (auth-protected deployment live). |
+| MongoDB Atlas | ASSUMED OK | No DB errors reported in Sentry trend data over past 3 days. Last confirmed incident: 2026-05-16. |
+| PostHog | UNKNOWN | SDK-only — no MCP connection. Appointment count unavailable. |
+| Sentry | UNKNOWN | MCP call blocked — needs approval. Yesterday: 4 events, 1 open issue (SHEAHAIRCARE-R). |
 
 ---
 
-## Sentry Events (last 24h)
+## Known Open Issues
 
-| Issue | Error | Events | Status |
+| Issue ID | Error | First Seen | Status |
 |---|---|---|---|
-| SHEAHAIRCARE-R | SecurityError: The operation is insecure. | 4 | New — open |
+| SHEAHAIRCARE-R | `SecurityError: The operation is insecure.` | 2026-05-20 | Open — unresolved |
 
-**Total events:** 4 (threshold: >5 to flag)
-
-> `SecurityError: The operation is insecure.` typically fires from cross-origin access attempts — an iframe, localStorage, or cookie being read across domains. New today. Worth a look before it spikes.
+> Cross-origin access violation. Likely triggered by iframe, localStorage, or cookie access across domains. New yesterday, not yet spiking. Check browser console on production and staging.
 
 ---
 
-## Trend
+## Trend (last 7 days)
 
 | Date | Events | Issues | Top Problem |
 |---|---|---|---|
@@ -42,8 +40,9 @@
 | 2026-05-18 | 8 | 1 | MONGODB_URI env var not defined |
 | 2026-05-19 | 4 | 0 | Stale Server Action hashes (post-deploy noise) |
 | 2026-05-20 | 4 | 1 | SecurityError: The operation is insecure. |
+| 2026-05-21 | — | — | Live pull blocked (MCP approval required) |
 
-Event count flat vs yesterday. New issue type appeared. Not spiking yet.
+Error trend is strongly positive (97 → 4). One new unresolved issue type introduced yesterday.
 
 ---
 
@@ -51,11 +50,11 @@ Event count flat vs yesterday. New issue type appeared. Not spiking yet.
 
 | Gap | Fix | Effort | Priority |
 |---|---|---|---|
-| Vercel uptime | Wire Sheahaircare .vercel.app URL to `mcp__Vercel__get_deployment` with correct project ID | 5 min | P1 |
-| Custom domain | Confirm sheahaircare.co.za DNS points to Vercel — currently ECONNREFUSED | 10 min | P1 |
+| Vercel + Sentry MCP blocked | Enable auto-approval for `mcp__Vercel__*` and `mcp__Sentry__*` in Claude Code settings | 2 min | P0 |
+| Custom domain down | Confirm sheahaircare.co.za DNS → Vercel. Was ECONNREFUSED on 2026-05-20. | 10 min | P1 |
 | PostHog appointments | Replace placeholder token; wire MCP or cron script | 15 min | P2 |
 | MongoDB health ping | Add `scripts/mongo-ping.js` to verify connection each run | 20 min | P3 |
 
 ---
 
-_Generated: 2026-05-20 08:00 SAST_
+_Generated: 2026-05-21 08:00 SAST_
