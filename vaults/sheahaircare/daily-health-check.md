@@ -1,11 +1,11 @@
-# Sheahaircare Daily Health — 2026-05-27
+# Sheahaircare Daily Health — 2026-05-28
 
 **Status:** WARNING
 **Appointments (24h):** N/A — PostHog not wired
-**Errors (24h):** UNKNOWN — Sentry OAuth expired (day 2, re-auth required)
+**Errors (24h):** UNKNOWN — Sentry OAuth expired (day 3, re-auth required)
 **Uptime:** UNKNOWN — Vercel MCP blocked (personal account, no team ID)
-**Top Issue:** Monitoring blind spot now 4 days. No live error, appointment, or uptime data.
-**Recommendation:** Complete Sentry OAuth today — link in chat. 2 min. Only action that requires your browser.
+**Top Issue:** Monitoring blind spot now 5 days. No live error, appointment, or uptime data.
+**Recommendation:** Complete Sentry OAuth today — link below. 2 min. Only action that requires your browser.
 
 ---
 
@@ -16,7 +16,7 @@
 | Vercel | UNKNOWN | Personal account — MCP requires team ID. Still blocked. Last confirmed: 2026-05-23. |
 | MongoDB Atlas | ASSUMED OK | No DB errors in last known Sentry pull (2026-05-23). Unverified since. |
 | PostHog | NOT CONNECTED | Token still placeholder in `references/posthog-api.md`. 0 appointment data available. |
-| Sentry | UNKNOWN | OAuth expired day 2. Re-auth URL sent again. Last known state: 0 unresolved issues (2026-05-23). |
+| Sentry | UNKNOWN | OAuth expired. Day 3. Re-auth URL sent in this session. Last known state: 0 unresolved issues (2026-05-23). |
 
 ---
 
@@ -24,13 +24,14 @@
 
 | Issue | Since | Status |
 |---|---|---|
-| Sentry OAuth expired | 2026-05-26 | Day 2 — re-auth URL sent again |
+| Sentry OAuth expired | 2026-05-26 | Day 3 — re-auth URL sent again today |
 | PostHog not wired | 2026-05-23 | Token placeholder — 5 min fix |
-| Vercel MCP access | 2026-05-23 | Personal account blocked — add `scripts/vercel-ping.sh` workaround |
+| Vercel MCP access | 2026-05-23 | Personal account blocked — workaround script needed |
+| Sheahaircare URL not stored | 2026-05-28 | Add to connections.md so uptime ping can run |
 
 ---
 
-## Trend (last 7 days)
+## Trend (last 8 days)
 
 | Date | Errors | New Issues | Top Problem |
 |---|---|---|---|
@@ -42,8 +43,9 @@
 | 2026-05-25 | — | — | No check run |
 | 2026-05-26 | UNKNOWN | UNKNOWN | Sentry OAuth expired |
 | 2026-05-27 | UNKNOWN | UNKNOWN | Sentry OAuth day 2 |
+| 2026-05-28 | UNKNOWN | UNKNOWN | Sentry OAuth day 3 |
 
-**Error trend:** Last confirmed clean: 2026-05-23 (4 days ago). Blind spot growing.
+**Error trend:** Last confirmed clean: 2026-05-23 (5 days ago). Blind spot growing.
 
 ---
 
@@ -52,11 +54,12 @@
 | Gap | Fix | Effort | Priority |
 |---|---|---|---|
 | Sentry OAuth | Click re-auth URL sent in chat | 2 min | P0 — user action required |
+| Sheahaircare URL | Add production URL to connections.md | 1 min | P0 — enables uptime ping |
 | PostHog appointments | Replace placeholder in `references/posthog-api.md` with real token | 5 min | P0 |
 | Vercel uptime | Add `scripts/vercel-ping.sh` using deployment URL directly | 10 min | P1 |
 | MongoDB health ping | Add `scripts/mongo-ping.js` for direct connection check | 20 min | P1 |
 
 ---
 
-_Generated: 2026-05-27 08:00 SAST_
-_Note: Live data unavailable — Sentry OAuth expired (day 2), Vercel MCP blocked, PostHog not connected. Last known clean state: 2026-05-23._
+_Generated: 2026-05-28 08:00 SAST_
+_Note: Live data unavailable — Sentry OAuth expired (day 3), Vercel MCP blocked (personal account), PostHog not connected. Last known clean state: 2026-05-23._
