@@ -1,11 +1,11 @@
-# Sheahaircare Daily Health — 2026-05-29
+# Sheahaircare Daily Health — 2026-05-30
 
 **Status:** WARNING
 **Appointments (24h):** UNKNOWN — PostHog token not configured
-**Errors (24h):** UNKNOWN — Sentry OAuth expired (day 4)
-**Uptime:** UNKNOWN — Sheahaircare URL not stored, Vercel MCP blocked (personal account)
-**Top Issue:** 6-day monitoring blind spot. Sentry, PostHog, and Vercel all dark.
-**Recommendation:** Two actions needed from you today — complete Sentry OAuth (link sent in chat) + share the Sheahaircare production URL.
+**Errors (24h):** UNKNOWN — Sentry OAuth expired (day 5)
+**Uptime:** UNKNOWN — Sheahaircare production URL not stored; Vercel MCP requires team ID (personal account)
+**Top Issue:** 7-day monitoring blind spot. Sentry, PostHog, and Vercel all dark since 2026-05-23.
+**Recommendation:** Three P0 actions — (1) Complete Sentry OAuth via link in chat, (2) Paste your Sheahaircare production URL, (3) Add PostHog token to `references/posthog-api.md`.
 
 ---
 
@@ -13,10 +13,10 @@
 
 | System | Status | Notes |
 |---|---|---|
-| Vercel | UNKNOWN | Personal account — MCP requires team ID. No Sheahaircare URL stored either. Unverified since 2026-05-23. |
-| MongoDB Atlas | ASSUMED OK | No confirmed errors in last known Sentry pull (2026-05-23). Unverified. |
+| Vercel | UNKNOWN | Personal account — MCP requires team ID. No production URL stored. Blind since 2026-05-23. |
+| MongoDB Atlas | ASSUMED OK | No confirmed errors in last known Sentry pull (2026-05-23). Unverified for 7 days. |
 | PostHog | NOT CONNECTED | Token placeholder in `references/posthog-api.md`. 0 appointment data since launch. |
-| Sentry | UNKNOWN | OAuth expired 2026-05-26. Day 4. Re-auth URL sent in session today. |
+| Sentry | UNKNOWN | OAuth expired 2026-05-26. Day 5. New re-auth URL sent in chat today. |
 
 ---
 
@@ -24,14 +24,14 @@
 
 | Issue | Since | Status |
 |---|---|---|
-| Sentry OAuth expired | 2026-05-26 | Day 4 — re-auth URL sent in chat |
+| Sentry OAuth expired | 2026-05-26 | Day 5 — new re-auth URL sent in chat |
 | PostHog not wired | 2026-05-23 | Replace placeholder token — 5 min fix |
-| Vercel MCP access | 2026-05-23 | Personal account blocked — URL ping is workaround |
+| Vercel MCP access | 2026-05-23 | Personal account — URL ping is workaround |
 | Sheahaircare URL not stored | 2026-05-23 | Add to connections.md — needed for uptime check |
 
 ---
 
-## Trend (last 9 days)
+## Trend (last 10 days)
 
 | Date | Errors | New Issues | Top Problem |
 |---|---|---|---|
@@ -45,8 +45,9 @@
 | 2026-05-27 | UNKNOWN | UNKNOWN | Sentry OAuth day 2 |
 | 2026-05-28 | UNKNOWN | UNKNOWN | Sentry OAuth day 3 |
 | 2026-05-29 | UNKNOWN | UNKNOWN | Sentry OAuth day 4 |
+| 2026-05-30 | UNKNOWN | UNKNOWN | Sentry OAuth day 5 |
 
-**Error trend:** Last confirmed clean: 2026-05-23 (6 days ago). Blind spot growing daily.
+**Error trend:** Last confirmed clean: 2026-05-23 (7 days ago). Blind spot growing daily.
 
 ---
 
@@ -55,12 +56,12 @@
 | Gap | Fix | Effort | Priority |
 |---|---|---|---|
 | Sentry OAuth | Click re-auth URL in chat | 2 min | P0 — user action |
-| Sheahaircare URL | Paste production URL, I'll add it to connections.md | 1 min | P0 — enables uptime ping |
+| Sheahaircare URL | Paste production URL, I'll add to connections.md + set up uptime ping | 1 min | P0 — enables uptime check |
 | PostHog appointments | Replace placeholder token in `references/posthog-api.md` | 5 min | P0 |
-| Vercel uptime | Once URL is stored, I'll add `scripts/vercel-ping.sh` | 10 min | P1 |
+| Vercel uptime script | Once URL stored, I'll add `scripts/vercel-ping.sh` | 10 min | P1 |
 | MongoDB health ping | Add `scripts/mongo-ping.js` for direct connection check | 20 min | P1 |
 
 ---
 
-_Generated: 2026-05-29 08:00 SAST_
-_Note: Live data unavailable — Sentry OAuth expired (day 4), Vercel MCP blocked (personal account), PostHog not connected. Last known clean state: 2026-05-23._
+_Generated: 2026-05-30 08:00 SAST_
+_Note: Live data unavailable — Sentry OAuth expired (day 5), Vercel MCP blocked (personal account), PostHog not connected. Last known clean state: 2026-05-23._
