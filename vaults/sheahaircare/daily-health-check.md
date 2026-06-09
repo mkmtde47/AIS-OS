@@ -1,10 +1,10 @@
-# Sheahaircare Daily Health — 2026-06-08
+# Sheahaircare Daily Health — 2026-06-09
 
 **Status:** WARNING
-**Appointments (24h):** UNKNOWN — PostHog not connected (day 16)
-**Errors (24h):** UNKNOWN — Sentry OAuth expired (day 13)
-**Uptime:** UNKNOWN — Production URL not stored (day 16)
-**Top Issue:** 16-day monitoring blind spot. All four health systems dark. Fresh Sentry re-auth URL generated below.
+**Appointments (24h):** UNKNOWN — PostHog token not configured (day 17)
+**Errors (24h):** UNKNOWN — Sentry OAuth expired (day 14). Fresh re-auth URL below.
+**Uptime:** UNKNOWN — Production URL not stored (day 17)
+**Top Issue:** 17-day monitoring blind spot. All four health systems dark.
 **Recommendation:** P0 — Complete Sentry OAuth now (link below), then paste your production Sheahaircare URL.
 
 ---
@@ -13,10 +13,10 @@
 
 | System | Status | Notes |
 |---|---|---|
-| Vercel | UNKNOWN | Personal account — MCP requires team ID. No production URL stored. Blind since 2026-05-23 (16 days). |
-| MongoDB Atlas | ASSUMED OK | No confirmed errors in last known Sentry pull (2026-05-23). Unverified 16 days. |
+| Vercel | UNKNOWN | Personal account — MCP requires team ID. No production URL in `connections.md`. Blind since 2026-05-23 (17 days). |
+| MongoDB Atlas | ASSUMED OK | No confirmed errors in last known Sentry pull (2026-05-23). Unverified 17 days. |
 | PostHog | NOT CONNECTED | Token placeholder in `references/posthog-api.md`. Zero appointment data since launch. |
-| Sentry | UNKNOWN | OAuth expired 2026-05-26. Day 13. **Fresh re-auth URL generated this session — see below.** |
+| Sentry | UNKNOWN | OAuth expired 2026-05-26. Day 14. **Fresh re-auth URL generated this session — see below.** |
 
 ---
 
@@ -25,7 +25,7 @@
 Open this URL in your browser:
 
 ```
-https://api.anthropic.com/authorize?response_type=code&client_id=75623423-3071-4460-8467-9377a3f3775e&code_challenge=i-yBz1WtJUzU94O-HI_WhJ-ixK0TTVIJpoKEd7Af-uA&code_challenge_method=S256&redirect_uri=http%3A%2F%2Flocalhost%3A57986%2Fcallback&state=hKUqllPxGG3z2VJObweUerhocH8qeEWhWaCrNFWYvpQ
+https://api.anthropic.com/authorize?response_type=code&client_id=b4cde1c4-3452-452c-aaf3-49bee7a6853a&code_challenge=l0og8k2_pgN5Lndskbz_vkMpBlkachx7b0QgTsn7ooo&code_challenge_method=S256&redirect_uri=http%3A%2F%2Flocalhost%3A64777%2Fcallback&state=haRFXJPZXXmg-MYj-z_AYlf6FjAA9Xu8vGojDOxNuI4
 ```
 
 After authorizing, your browser will show a connection error — that's expected. Copy the full URL from the address bar and paste it back into chat.
@@ -36,14 +36,14 @@ After authorizing, your browser will show a connection error — that's expected
 
 | Issue | Since | Days Open | Status |
 |---|---|---|---|
-| Sentry OAuth expired | 2026-05-26 | 13 | Fresh re-auth URL in this report |
-| PostHog not wired | 2026-05-23 | 16 | Replace placeholder token — 5 min fix |
-| Vercel MCP access | 2026-05-23 | 16 | Personal account — paste production URL as workaround |
-| Sheahaircare URL not stored | 2026-05-23 | 16 | Add to connections.md |
+| Sentry OAuth expired | 2026-05-26 | 14 | Fresh re-auth URL in this report |
+| PostHog not wired | 2026-05-23 | 17 | Replace placeholder token — 5 min fix |
+| Vercel MCP access | 2026-05-23 | 17 | Personal account — paste production URL as workaround |
+| Sheahaircare URL not stored | 2026-05-23 | 17 | Add to `connections.md` |
 
 ---
 
-## Trend (last 17 days)
+## Trend (last 18 days)
 
 | Date | Errors | New Issues | Top Problem |
 |---|---|---|---|
@@ -63,10 +63,11 @@ After authorizing, your browser will show a connection error — that's expected
 | 2026-06-04 | UNKNOWN | UNKNOWN | Sentry OAuth day 9 |
 | 2026-06-05 | UNKNOWN | UNKNOWN | Sentry OAuth day 10 |
 | 2026-06-06 | UNKNOWN | UNKNOWN | Sentry OAuth day 11 |
-| 2026-06-07 | UNKNOWN | UNKNOWN | Sentry OAuth day 12 — re-auth URL generated |
-| 2026-06-08 | UNKNOWN | UNKNOWN | Sentry OAuth day 13 — fresh re-auth URL generated |
+| 2026-06-07 | UNKNOWN | UNKNOWN | Sentry OAuth day 12 |
+| 2026-06-08 | UNKNOWN | UNKNOWN | Sentry OAuth day 13 |
+| 2026-06-09 | UNKNOWN | UNKNOWN | Sentry OAuth day 14 — fresh re-auth URL generated |
 
-**Error trend:** Last confirmed clean: 2026-05-23 (16 days ago). Blind spot growing daily.
+**Error trend:** Last confirmed clean: 2026-05-23 (17 days ago). Blind spot growing daily.
 
 ---
 
@@ -78,5 +79,5 @@ After authorizing, your browser will show a connection error — that's expected
 
 ---
 
-_Generated: 2026-06-08 08:00 SAST_
-_Note: Live data unavailable — Sentry OAuth expired (day 13), Vercel MCP blocked (personal account), PostHog not connected. Last known clean state: 2026-05-23._
+_Generated: 2026-06-09 08:00 SAST_
+_Note: Live data unavailable — Sentry OAuth expired (day 14), Vercel MCP blocked (personal account), PostHog not connected. Last known clean state: 2026-05-23._
