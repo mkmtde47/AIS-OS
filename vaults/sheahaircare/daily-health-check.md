@@ -1,4 +1,4 @@
-# Sheahaircare Daily Health — 2026-06-19
+# Sheahaircare Daily Health — 2026-06-20
 
 **Status:** HEALTHY
 **Appointments (24h):** UNAVAILABLE — PostHog not connected
@@ -34,7 +34,8 @@
 | 2026-06-16 | 1 active | 2 (1 active, 1 stale) | WARNING — hydration error regressed |
 | 2026-06-17 | 0 | 0 | HEALTHY — hydration error cleared |
 | 2026-06-18 | 0 | 0 | HEALTHY — clean |
-| **2026-06-19** | **0** | **0** | **HEALTHY — clean** |
+| 2026-06-19 | 0 | 0 | HEALTHY — clean |
+| **2026-06-20** | **0** | **0** | **HEALTHY — clean** |
 
 ---
 
@@ -43,9 +44,8 @@
 - [ ] **Add PostHog token** to `references/posthog-api.md` — unlocks appointment tracking (5 min)
 - [ ] **Upgrade Vercel to team account** — required for direct uptime checks via MCP
 - [ ] **Add `MONGODB_READONLY_URI`** to env — wires direct DB connection health check
-- [ ] **Close stale test issue SHEAHAIRCARE-P** in Sentry (safe to close, 1 event, 29+ days old)
 
 ---
 
-_Generated: 2026-06-19 08:00 SAST_
+_Generated: 2026-06-20 08:00 SAST_
 _Sentry: fl4ll org, sheahaircare project. [View dashboard](https://fl4ll.sentry.io/issues/?project=sheahaircare)_
