@@ -1,11 +1,11 @@
-# Sheahaircare Daily Health — 2026-07-01
+# Sheahaircare Daily Health — 2026-07-02
 
 **Status:** HEALTHY
-**Appointments (24h):** UNAVAILABLE — PostHog token not configured
+**Appointments (24h):** N/A (PostHog not wired)
 **Errors (24h):** 0
-**Uptime:** ASSUMED LIVE — 0 Sentry errors confirms app running; Vercel MCP requires team account
-**Top Issue:** NONE — monitoring gaps remain (PostHog, Vercel MCP, MongoDB not wired)
-**Recommendation:** ALL CLEAR on errors. Wire PostHog token to unlock appointment tracking.
+**Uptime:** 100% (20/20 Vercel deployments READY)
+**Top Issue:** Deprecated Mongoose `{ new: true }` option on `/admin/marketing/[platform]` — non-blocking, present since 2026-05-29
+**Recommendation:** Fix Mongoose deprecation (`{ new: true }` → `{ returnDocument: 'after' }`). Low priority pre-launch cleanup.
 
 ---
 
@@ -13,10 +13,10 @@
 
 | System | Status | Notes |
 |---|---|---|
-| Vercel | ASSUMED LIVE | Personal account — Vercel MCP requires team. 0 Sentry crash errors confirms app is live. |
+| Vercel | HEALTHY | 100% uptime. 20/20 deployments READY. Latest prod: PR #620 (WhatsApp opt-in fix), merged 2026-07-01. 1 runtime warning (Mongoose deprecation — non-blocking). |
 | Sentry | HEALTHY | 0 errors in last 24h. 0 unresolved issues. Clean. |
-| PostHog | NOT CONNECTED | Token placeholder only. Appointment count unavailable. |
-| MongoDB | ASSUMED OK | No DB errors in Sentry. Direct connection not wired (`MONGODB_READONLY_URI` missing). |
+| PostHog | NOT CONNECTED | Token not configured. Appointment count unavailable. |
+| MongoDB | OK | Mongoose active (confirmed by runtime warnings). No connection errors in Sentry or Vercel logs. |
 
 ---
 
@@ -46,17 +46,19 @@
 | 2026-06-28 | 0 | 0 | HEALTHY — clean |
 | 2026-06-29 | 0 | 0 | HEALTHY — clean |
 | 2026-06-30 | 0 | 0 | HEALTHY — clean |
-| **2026-07-01** | **0** | **0** | **HEALTHY — clean** |
+| 2026-07-01 | 0 | 0 | HEALTHY — clean |
+| **2026-07-02** | **0** | **0** | **HEALTHY — clean. Vercel 100% (20/20 READY). Mongoose deprecation warning on /admin/marketing/[platform] (non-blocking).** |
 
 ---
 
 ## Open Action Items
 
+- [ ] **Fix Mongoose deprecation** — swap `{ new: true }` → `{ returnDocument: 'after' }` in admin marketing route. Low priority pre-launch cleanup.
 - [ ] **Add PostHog token** to `references/posthog-api.md` — unlocks appointment tracking (5 min)
-- [ ] **Upgrade Vercel to team account** — required for direct uptime checks via MCP
-- [ ] **Add `MONGODB_READONLY_URI`** to env — wires direct DB connection health check
+- [x] ~~Upgrade Vercel to team account~~ — Vercel MCP now working, full deployment visibility confirmed
+- [ ] **Add `MONGODB_READONLY_URI`** to env — wires direct DB ping for future health checks
 
 ---
 
-_Generated: 2026-07-01 08:00 SAST_
+_Generated: 2026-07-02 08:00 SAST_
 _Sentry: fl4ll org, sheahaircare project. [View dashboard](https://fl4ll.sentry.io/issues/?project=sheahaircare)_
