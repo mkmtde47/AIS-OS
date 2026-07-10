@@ -1,11 +1,11 @@
-# Sheahaircare Daily Health — 2026-07-09
+# Sheahaircare Daily Health — 2026-07-10
 
-**Status:** WARNING
+**Status:** HEALTHY
 **Appointments (24h):** N/A — PostHog not connected
-**Errors (24h):** 1 open issue (2 events, 1 user affected)
-**Uptime:** Operational — new prod build in progress, previous prod READY
-**Top Issue:** Hydration Error on `/96-locks-n-styles/dashboard/appointments` (SHEAHAIRCARE-V)
-**Recommendation:** Investigate hydration error on appointments page (server/client render mismatch). Monitor PR #728 build — if it fails, rollback candidate is available.
+**Errors (24h):** 1 event, 0 unresolved issues
+**Uptime:** 100% — prod READY, all 20 recent deployments in READY state
+**Top Issue:** NONE — yesterday's hydration error (SHEAHAIRCARE-V) resolved by PR #750
+**Recommendation:** ALL CLEAR. Add PostHog token (5 min task) to unlock appointment tracking.
 
 ---
 
@@ -13,30 +13,42 @@
 
 | System | Status | Notes |
 |---|---|---|
-| Vercel | WARNING | New prod build BUILDING (PR #728 — mongodb dep fix). Previous prod READY. |
-| Sentry | WARNING | 1 unresolved issue — hydration error on appointments page. 0 new events captured in 24h. |
+| Vercel | HEALTHY | Prod READY — PR #757 (auth refactor). 7 PRs merged today. No build failures. |
+| Sentry | HEALTHY | 1 error event in 24h, 0 unresolved issues. Hydration error CLOSED. |
 | PostHog | NOT CONNECTED | Appointment count unavailable. |
-| MongoDB | INDIRECT | PR #728 fixes a missing mongodb direct dependency — prior instability was dep-hoisting, not connectivity. |
+| MongoDB | HEALTHY | PR #728 landed (direct dep fix). No timeout errors since. |
 
 ---
 
 ## Sentry Issues (Open)
 
-| Issue | Type | Events | Users | Route | First Seen |
-|---|---|---|---|---|---|
-| [SHEAHAIRCARE-V](https://fl4ll.sentry.io/issues/SHEAHAIRCARE-V) — Hydration Error | frontend | 2 | 1 | `/96-locks-n-styles/dashboard/appointments` | ~11h ago |
+None. All clear.
 
-Error threshold (>5): **NOT triggered**
+Error threshold (>5): **NOT triggered** — 1 event in 24h.
 
 ---
 
-## Vercel Deployments
+## Vercel — Current Production
 
-| Deployment | Status | Commit |
+| Deployment | Status | PR | Description |
+|---|---|---|---|
+| dpl_G7aGj2KxLAtGjaDsG62s9vhgBziB | **READY (PROD)** | #757 | refactor(auth): shared AuthShell/AuthField primitives |
+| dpl_9yQehTrygyP7zqp5aU2fAkPP6ei8 | READY (rollback) | #756 | chore(auth): unify copy, terminology & error tokens |
+| dpl_AzcRJgvsTtdqhWyDkPwvrUUhfioK | READY (rollback) | #755 | fix(auth): customer modal mode + heading |
+
+---
+
+## Today's Shipping Activity (PRs Merged)
+
+| PR | Change | Impact |
 |---|---|---|
-| dpl_272cLCwyHe9kBsRWTwrc1uQoZtWZ | **BUILDING (new prod)** | PR #728 — fix(deps): declare mongodb as a direct dependency |
-| dpl_12gAGDokGP1tch7Wf1GhbfCf3QPB | **READY (stable prod)** | PR #726 — fix: Studio quota soft-wall |
-| dpl_8yNjjQRc3McnvWJaQFQZ9qdhB8UD | READY (rollback candidate) | PR #724 — feat: funnel instrumentation |
+| #757 | refactor(auth): AuthShell/AuthField shared primitives | Structure cleanup |
+| #756 | chore(auth): copy + error token unification | Copy consistency |
+| #755 | fix(auth): modal mode + Google-promise copy | 3 live auth defects fixed |
+| #754 | fix(security): escrow OTP brute-force throttle | Security hardening |
+| #753 | fix(security): durable rate limiters + trusted IP | Security hardening |
+| #752 | fix(booking): per-stylist slot lock (double-book) | Booking integrity |
+| **#750** | **fix: pin SSR timezone to Africa/Johannesburg** | **Closed SHEAHAIRCARE-V hydration error** |
 
 ---
 
@@ -47,20 +59,18 @@ Error threshold (>5): **NOT triggered**
 | 2026-07-06 | HEALTHY | 0 errors. |
 | 2026-07-07 | HEALTHY | 0 Sentry errors. Active build week. |
 | 2026-07-08 | WARNING | MongoNetworkTimeoutError + 12 auth errors. |
-| **2026-07-09** | **WARNING** | **Hydration error on appointments page. Prod build in progress (PR #728).** |
+| 2026-07-09 | WARNING | Hydration error on appointments page. Prod build in progress (PR #728). |
+| **2026-07-10** | **HEALTHY** | **0 unresolved issues. Hydration error resolved. 7 PRs shipped.** |
 
 ---
 
 ## Open Action Items
 
-- [ ] **Fix hydration error** — SHEAHAIRCARE-V on `/96-locks-n-styles/dashboard/appointments`. Check for server-side data that differs from client render (date/time formatting, auth state, etc.).
-- [ ] **Monitor PR #728 build** — mongodb dependency fix deploying now. Confirm READY before close of day.
-- [ ] **MongoDB yesterday** — MongoNetworkTimeoutError from 2026-07-08 — confirm resolved after PR #728 lands.
 - [ ] **Add PostHog token** — appointment tracking still unavailable. 5 min task.
-- [ ] **Wire Sentry SDK** — runtime errors may not be fully reaching Sentry. Verify `@sentry/nextjs` is initialised.
+- [ ] **Wire Sentry SDK** — verify `@sentry/nextjs` is fully initialised to catch all runtime errors.
 
 ---
 
-_Generated: 2026-07-09 08:00 SAST_
+_Generated: 2026-07-10 08:00 SAST_
 _Sentry: fl4ll org. [View dashboard](https://fl4ll.sentry.io/issues/)_
 _Vercel: [View project](https://vercel.com/mkmmogano-7968s-projects/sheahaircare)_
