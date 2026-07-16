@@ -1,11 +1,11 @@
-# Sheahaircare Daily Health — 2026-07-15
+# Sheahaircare Daily Health — 2026-07-16
 
 **Status:** HEALTHY
 **Appointments (24h):** N/A — PostHog not connected
-**Errors (24h):** 4 (below >5 threshold)
-**Uptime:** 100% — all prod deployments READY
-**Top Issue:** `url.parse()` deprecation warning still firing on `/api/inngest` + appointments route (non-breaking, last seen 05:45 SAST)
-**Recommendation:** Fix `url.parse()` usage — security-adjacent deprecation. Low priority. All subscription/billing errors from yesterday resolved by today's PRs.
+**Errors (24h):** 0 Sentry errors
+**Uptime:** 100% — all 20 recent deployments READY
+**Top Issue:** `url.parse()` deprecation still firing on `/api/inngest` (non-breaking, 40+ days open)
+**Recommendation:** Fix url.parse() in Inngest handler — it's been open since June 6. Connect PostHog for appointment visibility.
 
 ---
 
@@ -13,52 +13,48 @@
 
 | System | Status | Notes |
 |---|---|---|
-| Vercel | HEALTHY | All 20 deployments READY. Latest prod: PR #861 (subscription plan resolution). |
-| MongoDB | UNVERIFIED | No direct check available. PR #844 fix still in effect. Watch for timeout errors. |
-| Sentry | HEALTHY | 4 errors in 24h. No unresolved issues. Below warning threshold. |
-| PostHog | NOT CONNECTED | Appointment count unavailable. 5-min task to connect. |
+| Vercel | HEALTHY | All 20 deployments READY. 9 prod deploys shipped yesterday. Latest: PR #871. |
+| MongoDB | UNVERIFIED | No direct check available. 0 Sentry DB errors suggests healthy. |
+| Sentry | HEALTHY | 0 unresolved errors in last 24h. Clean. |
+| PostHog | NOT CONNECTED | Appointment count unavailable. |
 
 ---
 
-## Runtime Errors — 6 groups total
+## Runtime Errors
 
-### LOW — url.parse() Deprecation Warning (still active)
-- **Routes:** `/[slug]/dashboard/appointments`, `/api/inngest`
-- **Count:** 5 | **Users affected:** 4 | **Last seen:** 2026-07-15 05:45 SAST
-- **Deployment:** dpl_9jyTuKGY2qeBdNx6WwvtYuCLDLUZ (current prod)
-- **Note:** Non-breaking but security-flagged by Node. Switch to WHATWG URL API.
-
-### RESOLVED — Subscription billing errors (3 groups, 8 occurrences from yesterday)
-- `[paystack] Transaction initialization failed: Plan not found` — last seen 2026-07-14 18:04
-- `[Subscription] Workflow failed: customer has no saved authorizations` — last seen 2026-07-14 13:43
-- `[Subscription] Workflow failed: Plan code is invalid` — last seen 2026-07-14 13:27
-- **Status:** All resolved by PRs #858–#861 merged today. Not recurring.
+### LOW — url.parse() Deprecation Warning (still active, 40+ days)
+- **Route:** `/api/inngest`
+- **Count:** 1 | **Last seen:** 2026-07-15 06:45 UTC
+- **First seen:** 2026-06-06
+- **Note:** Non-breaking. Fix: replace `url.parse()` with `new URL()` in the Inngest route handler.
 
 ---
 
-## Today's Shipping Activity (PRs #858–#861)
+## Yesterday's Shipping Activity (PRs #863–#871)
 
-4 PRs merged to production — heavy billing/subscription sprint.
+9 PRs merged — billing/subscription + security sprint.
 
-| PR | Change | Status |
-|---|---|---|
-| #861 | fix(subscription): dashboard reads DB plan + charge.success sets active | ✅ PROD |
-| #860 | fix(paystack): harden upgrade — disable old sub via webhook | ✅ PROD |
-| #859 | docs(agents): sprint log + PostHog sourcemap branch removal | ✅ PROD |
-| #858 | fix(paystack): stylist subscriptions via hosted checkout (collect card) | ✅ PROD |
+| PR | Change |
+|---|---|
+| #871 | feat(booking): payout readiness gating — block deposit for stylists with no payout setup |
+| #870 | fix(paystack): unmapped plan code must not demote a paying subscriber |
+| #869 | fix(paystack): never arm plan-change schedule against a live subscription |
+| #868 | fix(paystack): claim new subscription code before disabling the old one |
+| #867 | fix(paystack): handle not_renew + stop disable revoking a paid-up period |
+| #866 | feat(billing): pending cancellation/downgrade banner on dashboard |
+| #865 | fix(billing): re-land 5 subscription/billing commits orphaned by #861 |
+| #864 | fix(storefront): stop leaking bank + billing fields in public page payload ⚠️ SECURITY |
+| #863 | fix(scale): cap listTiplatesForAdmin at 500 |
 
-Notable: Subscription billing fully overhauled. New stylists can now subscribe via hosted checkout. Plan code resolution moved server-side. Card on file captured from webhooks.
+**Notable:** PR #864 was a security fix — payout + billing fields (bankAccountNumber, bankCode, paystackSubaccountCode, etc.) were visible in the RSC payload of public storefront pages before this fix.
 
 ---
 
 ## Action Items
 
-- [ ] **Fix `url.parse()` in `/api/inngest` + appointments** — switch to `new URL()` (WHATWG). Low priority but node security flag.
-- [ ] **Add PostHog token** — appointment tracking still unavailable. 5-min task.
-- [ ] **Verify MongoDB health** — no direct check. Watch Sentry for `MongoNetworkTimeoutError` recurrence.
-- [x] ~~Rotate GitHub PAT for vault integration~~ — Vault 401 errors not appearing today. Likely resolved.
-- [x] ~~Fix subscription billing errors~~ — Resolved by PRs #858–#861.
-- [x] ~~Re-authenticate Sentry MCP~~ — Sentry now connected and reporting.
+- [ ] **Fix `url.parse()` in `/api/inngest`** — switch to `new URL()` (WHATWG). Open 40+ days.
+- [ ] **Connect PostHog** — appointment count still unavailable. 5-min task.
+- [ ] **Verify MongoDB health** — no direct check. Watch Sentry for `MongoNetworkTimeoutError`.
 
 ---
 
@@ -67,14 +63,15 @@ Notable: Subscription billing fully overhauled. New stylists can now subscribe v
 | Date | Status | Top Issue |
 |---|---|---|
 | 2026-07-10 | HEALTHY | 0 unresolved issues. Hydration error resolved. 7 PRs shipped. |
-| 2026-07-11 | WARNING | SHEAHAIRCARE-Y (hooks violation, signin). 1 build failure auto-recovered. 8 PRs shipped. |
+| 2026-07-11 | WARNING | SHEAHAIRCARE-Y (hooks violation, signin). 1 build failure. 8 PRs shipped. |
 | 2026-07-12 | WARNING | MongoNetworkTimeoutError on marketplace (4 events, 3 users). Sentry offline. 9 PRs shipped. |
 | 2026-07-13 | — | No check run. |
-| 2026-07-14 | WARNING | Vault 401 Unauthorized — Inngest marketing sync broken. DYNAMIC_SERVER_USAGE on /find pages. 5 PRs shipped. |
-| **2026-07-15** | **HEALTHY** | **Subscription billing fully resolved. 4 PRs shipped. url.parse() deprecation only open issue.** |
+| 2026-07-14 | WARNING | Vault 401 Unauthorized — Inngest marketing sync broken. DYNAMIC_SERVER_USAGE on /find pages. |
+| 2026-07-15 | HEALTHY | Subscription billing fully resolved. 4 PRs shipped. url.parse() only open issue. |
+| **2026-07-16** | **HEALTHY** | **0 Sentry errors. 9 prod deploys. Security fix (#864) shipped. url.parse() still open.** |
 
 ---
 
-_Generated: 2026-07-15 08:00 SAST_
+_Generated: 2026-07-16 08:00 SAST_
 _Vercel: [View project](https://vercel.com/mkmmogano-7968s-projects/sheahaircare)_
-_Sentry: [View errors](https://fl4ll.sentry.io/explore/discover/homepage/?dataset=errors&statsPeriod=24h)_
+_Sentry: [View errors](https://fl4ll.sentry.io/issues/?project=sheahaircare&statsPeriod=24h)_
