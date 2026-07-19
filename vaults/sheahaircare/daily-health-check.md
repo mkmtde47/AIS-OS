@@ -4,8 +4,8 @@
 **Appointments (24h):** N/A — PostHog not connected
 **Errors (24h):** 1
 **Uptime:** ~100% (all Vercel deployments READY)
-**Top Issue:** Server Components render error on `/consumer` at 23:41 UTC (SHEAHAIRCARE-5 pattern — DB connection blip)
-**Recommendation:** Check MongoDB Atlas for overnight connection drops. The dbConnect readyState fix (PR #885) is mostly holding (1 isolated event vs. repeated bursts before). If it recurs today, increase minPoolSize on Atlas or add a /consumer health probe.
+**Top Issue:** Server Components render error on `/consumer` at 23:41 UTC July 18 — SHEAHAIRCARE-5 pattern recurring (1 event/day)
+**Recommendation:** SHEAHAIRCARE-5 persists at low volume despite PR #885 fix. Either raise MongoDB Atlas minPoolSize, add a connection health probe before rendering, or add a retry wrapper in dbConnect. One more recurrence today = escalate.
 
 ---
 
@@ -13,10 +13,10 @@
 
 | System | Status | Notes |
 |---|---|---|
-| Vercel | HEALTHY | All 20 recent deployments READY. Latest prod: `feat/tiplate-customer-creators` promoted. 6 PRs merged to main. |
-| MongoDB | WARNING | 1 Server Components render failure on /consumer at 23:41 UTC suggests a transient connection drop. |
-| Sentry | WARNING | 1 error event in 24h. 0 open unresolved issues. |
-| PostHog | NOT CONNECTED | Appointment count unavailable. |
+| Vercel | HEALTHY | Latest prod: PR #894 `fix/mobile-portal-header` — READY. PR #896 tier caps in preview. 20/20 recent deploys READY (2 CANCELED by superseding pushes). |
+| MongoDB | WARNING | 1 Server Components render failure at 23:41 UTC suggests a transient connection drop. SHEAHAIRCARE-5 pattern persists at 1 event/day rate post-PR #885. |
+| Sentry | WARNING | 1 error event in 24h — below 5-event alert threshold, but recurring daily. 0 open unresolved issues. |
+| PostHog | NOT CONNECTED | Appointment count unavailable. Wire up to unlock booking funnel visibility. |
 
 ---
 
@@ -24,36 +24,33 @@
 
 **1 error** in last 24h:
 
-- **Error:** `Server Components render error` (production digest hidden)
-- **Culprit:** `/consumer`
+- **Error:** `Server Components render error` (production digest hidden — Next.js Server Components)
+- **Project:** sheahaircare
 - **Time:** 2026-07-18 23:41 UTC
-- **Pattern:** Matches SHEAHAIRCARE-5 — dead cached MongoDB connection returned before readyState check. Fix shipped in PR #885 (dbConnect readyState guard). Single occurrence suggests fix is largely working, but not fully eliminating the race on Atlas failover / idle pool drain.
-- **Sentry:** [View in Explore](https://fl4ll.sentry.io/explore/discover/homepage/?dataset=errors&queryDataset=error-events&query=&project=4511344680304640&field=timestamp&field=title&field=project&field=level&field=message&field=error.type&field=culprit&field=user.email&field=user.id&sort=-timestamp&statsPeriod=24h&yAxis=count%28%29)
+- **Pattern:** SHEAHAIRCARE-5 — dead cached MongoDB connection returned before readyState check. PR #885 (dbConnect readyState guard) reduced frequency but hasn't eliminated the race on Atlas idle pool drain or failover.
+- **Sentry Explore:** [View in dashboard](https://fl4ll.sentry.io/explore/discover/homepage/?dataset=errors&queryDataset=error-events&query=level%3Aerror&project=4511344680304640&field=count%28%29&sort=-count%28%29&statsPeriod=24h&mode=aggregate&yAxis=count%28%29)
 
 ---
 
 ## Today's Shipping Activity
 
-6 PRs merged to main. All deployments READY.
+4 PRs merged to main. All deployments READY. 1 preview PR in review.
 
-| PR | Branch / Title | Status |
+| PR | Title | Status |
 |---|---|---|
-| #889 | feat(tiplates): customer-creator imagery panel (AI-generate / upload / remove) | READY |
-| #888 | feat(consumer): per-tier billing CTAs + tier badge on portal home | READY |
-| #887 | fix(membership): live-poll activation on checkout success (no dead-end wait) | READY |
-| #886 | fix(auth): close silent-failure gaps + harden DB connects across auth forms | READY |
-| #885 | fix: dbConnect must not reuse a dead cached connection (SHEAHAIRCARE-5 root cause) | READY |
-| #884 | feat(tiplates): customer creators — paid-tier authoring + monetization (batches 2–7) | READY |
-
-Plus: `feat/tiplate-customer-creators` batch 9/7 promoted to production (creator studio nav entry point).
+| #894 | fix(portal): declutter mobile header — emoji tier badge + brand mark | Prod READY |
+| #893 | fix(tiplates): restore 3 creator commits orphaned by the #884 merge | Prod READY |
+| #892 | fix(portal): align the Tiplates home card with the portal container | Prod READY |
+| #891 | feat(marketplace): word-based provider tier badges (Everyday / Signature / Couture) | Prod READY |
+| #896 | feat(tiers): soft ceiling, seasonal grace and AI cost visibility *(preview only)* | Preview READY |
 
 ---
 
 ## Action Items
 
-- [ ] **Check MongoDB Atlas** — review overnight connection metrics for drops around 23:41 UTC. Consider raising minPoolSize from 0.
-- [ ] **Monitor /consumer** — if SHEAHAIRCARE-5 pattern recurs today, escalate. Current fix (PR #885) may need a secondary safeguard (connection health probe or retry wrapper).
-- [ ] **Connect PostHog** — appointment count still unavailable.
+- [ ] **Fix SHEAHAIRCARE-5 properly** — PR #885 guards the readyState but the race still slips through once per day. Options: raise Atlas minPoolSize from 0 → 2, add a `mongoose.connect()` retry in the catch block, or add a `/api/health/db` probe that warms the pool before first render.
+- [ ] **Connect PostHog** — appointment count still unavailable. Booking funnel visibility is a blind spot.
+- [ ] **Review PR #896** — tier caps (soft ceiling + seasonal grace) in preview. Significant billing logic — worth a manual review before merging to main.
 
 ---
 
@@ -70,7 +67,7 @@ Plus: `feat/tiplate-customer-creators` batch 9/7 promoted to production (creator
 | 2026-07-16 | HEALTHY | 0 Sentry errors. 9 prod deploys. Security fix (#864) shipped. url.parse() still open. |
 | 2026-07-17 | HEALTHY | 0 errors. 0 new deploys. url.parse() not seen. App stable after billing sprint. |
 | 2026-07-18 | HEALTHY | 0 errors. 9 prod deploys. Paystack billing sprint complete. url.parse() resolved. |
-| **2026-07-19** | **WARNING** | **1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 pattern. 6 PRs shipped.** |
+| **2026-07-19** | **WARNING** | **1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. 4 PRs shipped. PR #896 tier caps in preview.** |
 
 ---
 
