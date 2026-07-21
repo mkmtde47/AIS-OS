@@ -1,11 +1,11 @@
-# Sheahaircare Daily Health — 2026-07-20
+# Sheahaircare Daily Health — 2026-07-21
 
 **Status:** HEALTHY
 **Appointments (24h):** N/A — PostHog not connected
 **Errors (24h):** 0
-**Uptime:** ~100% (18/20 READY, 2 CANCELED by superseding pushes)
-**Top Issue:** NONE — first clean Sentry day in 9 days
-**Recommendation:** Merge PR #906 (POPIA age gate) before any user acquisition push. PR #907 (legal copy) also needs a merge.
+**Uptime:** ~100% (19/20 READY, 1 CANCELED by superseding push)
+**Top Issue:** NONE — second consecutive clean Sentry day. PRs #906 + #907 still unmerged.
+**Recommendation:** Merge PR #906 (POPIA age gate) + PR #907 (legal copy) before any user acquisition push. Connect PostHog.
 
 ---
 
@@ -13,8 +13,8 @@
 
 | System | Status | Notes |
 |---|---|---|
-| Vercel | HEALTHY | Latest prod: PR #905 `docs/agents-sprint-2026-07-19-encryption` — READY. 18/20 recent deploys READY. 2 CANCELED (normal — superseded by faster pushes). |
-| MongoDB | HEALTHY | 0 Sentry errors. SHEAHAIRCARE-5 silent today. Watch one more day before closing. |
+| Vercel | HEALTHY | Latest prod: PR #925 `fix/pronto-preserve-typed-input` — READY. 19/20 recent deploys READY. 1 CANCELED (normal — superseded by faster push). |
+| MongoDB | HEALTHY | 0 Sentry errors. SHEAHAIRCARE-5 silent for 2nd consecutive day. Consider closing the issue tomorrow if still clean. |
 | Sentry | HEALTHY | 0 error events in 24h. 0 open unresolved issues. Clean. |
 | PostHog | NOT CONNECTED | Appointment count unavailable. Booking funnel still a blind spot. |
 
@@ -24,34 +24,35 @@
 
 **0 errors** in last 24h.
 
-No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not fire overnight — either the connection held or Atlas recycled cleanly. One more clean day confirms resolution; one recurrence means the fix is still needed.
+SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) has now been silent for 2 consecutive days. If it stays clean tomorrow, close the issue — it appears to have self-resolved.
 
 ---
 
-## Today's Shipping Activity (2026-07-19 sprint)
+## Today's Shipping Activity (2026-07-21 Pronto sprint)
 
-7 PRs merged to main. All production deploys READY. 2 preview PRs awaiting merge.
+10 PRs shipped — the full Pronto feature (ranked to-do list for customers) launched overnight. All production deploys READY.
 
 | PR | Title | Status |
 |---|---|---|
-| #907 | fix(marketing): remove unsubstantiated claims (ARB + CPA compliance) | Preview READY |
-| #906 | feat(legal): close ungated customer signup doors (POPIA s34/s35) | Preview READY |
-| #905 | docs(agents): record bank-encryption session + backfill retraction | Prod READY |
-| #904 | chore(scripts): remove bank backfill (nothing to migrate) | Prod READY |
-| #903 | feat(membership): meter concierge + paid client tier token budgets | Prod READY |
-| #901 | feat(security): encrypt stylist bank account at rest | Prod READY |
-| #900 | feat(tiers): cap Scale's unlimited AI quotas | Prod READY |
-| #899 | feat(security): encrypt customer payout bank account at rest | Prod READY |
-| #898 | docs(agents): record customer-creator marketplace session | Prod READY |
+| #925 | fix(pronto): don't wipe next item a fast typist has started | Prod READY |
+| #924 | feat(pronto): day-part slots, act anchors, outcome-fantasy screen | Prod READY |
+| #923 | fix(pronto): double-click no longer creates duplicate items | Prod READY |
+| #922 | docs(agents): restore the #889 sprint entry lost in a stash conflict | Prod READY |
+| #921 | docs(agents): Pronto sprint entry — invariants + operator next steps | Prod READY |
+| #920 | fix(privacy): make the orphan-backfill script actually runnable | Prod READY |
+| #919 | feat(pronto): AI suggestions, on explicit request only | Prod READY |
+| #918 | feat(pronto): wire ProntoItem into POPIA deletion and export paths | Prod READY |
+| #917 | fix(privacy): backfill orphaned journey rows + surface Cloudinary assets | Prod READY |
+| #916 | feat(pronto): capture + ranked list at /consumer/pronto | Prod READY |
 
 ---
 
 ## Action Items
 
-- [ ] **Merge PR #906** — POPIA s34/s35: Google One Tap + magic link customer signup were ungated for age verification. Code is ready and in preview. Merge before any user acquisition.
-- [ ] **Merge PR #907** — Strips fabricated testimonials and unsubstantiated claims (ARB Code s.II Cl. 4.1 + CPA s41). In preview and ready.
-- [ ] **Watch SHEAHAIRCARE-5 one more day** — 0 events today vs 1/day for the past week. If clean tomorrow, the Atlas pool-drain race may have self-resolved or the PR #885 guard finally caught it. If it fires again, escalate: raise Atlas minPoolSize to 2 or add a connection retry wrapper.
-- [ ] **Connect PostHog** — Appointment count still unavailable. Booking funnel visibility is a blind spot.
+- [ ] **Merge PR #906** — POPIA s34/s35: Google One Tap + magic link customer signup ungated for age verification. In preview. Merge before any user acquisition.
+- [ ] **Merge PR #907** — Strips fabricated testimonials and unsubstantiated claims (ARB + CPA s41). In preview and ready.
+- [ ] **Watch SHEAHAIRCARE-5 one more day** — 2 clean days now. If clean tomorrow, close the issue.
+- [ ] **Connect PostHog** — Appointment count still unavailable. Booking funnel is a blind spot.
 
 ---
 
@@ -68,11 +69,12 @@ No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not
 | 2026-07-16 | HEALTHY | 0 Sentry errors. 9 prod deploys. Security fix (#864) shipped. url.parse() still open. |
 | 2026-07-17 | HEALTHY | 0 errors. 0 new deploys. url.parse() not seen. App stable after billing sprint. |
 | 2026-07-18 | HEALTHY | 0 errors. 9 prod deploys. Paystack billing sprint complete. url.parse() resolved. |
-| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. 4 PRs shipped. PR #896 tier caps in preview. |
-| **2026-07-20** | **HEALTHY** | **0 errors. 7 PRs merged (security + legal compliance sprint). 2 preview PRs pending merge (#906 POPIA, #907 legal copy).** |
+| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. 4 PRs shipped. |
+| 2026-07-20 | HEALTHY | 0 errors. 7 PRs merged (security + legal compliance sprint). 2 preview PRs pending (#906, #907). |
+| **2026-07-21** | **HEALTHY** | **0 errors. 10 PRs merged — full Pronto feature shipped. SHEAHAIRCARE-5 silent day 2. PRs #906 + #907 still unmerged.** |
 
 ---
 
-_Generated: 2026-07-20 08:00 SAST_
+_Generated: 2026-07-21 08:00 SAST_
 _Vercel: [View project](https://vercel.com/mkmmogano-7968s-projects/sheahaircare)_
 _Sentry: [View errors](https://fl4ll.sentry.io/explore/discover/homepage/?dataset=errors&queryDataset=error-events&query=level%3Aerror&field=count%28%29&sort=-count%28%29&statsPeriod=24h&mode=aggregate&yAxis=count%28%29)_
