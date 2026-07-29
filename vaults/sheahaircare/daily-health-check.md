@@ -1,11 +1,11 @@
-# Sheahaircare Daily Health — 2026-07-20
+# Sheahaircare Daily Health — 2026-07-29
 
 **Status:** HEALTHY
-**Appointments (24h):** N/A — PostHog not connected
-**Errors (24h):** 0
-**Uptime:** ~100% (18/20 READY, 2 CANCELED by superseding pushes)
-**Top Issue:** NONE — first clean Sentry day in 9 days
-**Recommendation:** Merge PR #906 (POPIA age gate) before any user acquisition push. PR #907 (legal copy) also needs a merge.
+**Appointments (24h):** UNAVAILABLE (PostHog not connected)
+**Errors (24h):** 2
+**Uptime:** 100%
+**Top Issue:** `NotFoundError: removeChild` — DOM node removed before unmount (SHEAHAIRCARE-14, 2 occurrences, below alert threshold)
+**Recommendation:** ALL CLEAR — monitor SHEAHAIRCARE-14 for recurrence; wire PostHog MCP for appointment tracking
 
 ---
 
@@ -13,45 +13,48 @@
 
 | System | Status | Notes |
 |---|---|---|
-| Vercel | HEALTHY | Latest prod: PR #905 `docs/agents-sprint-2026-07-19-encryption` — READY. 18/20 recent deploys READY. 2 CANCELED (normal — superseded by faster pushes). |
-| MongoDB | HEALTHY | 0 Sentry errors. SHEAHAIRCARE-5 silent today. Watch one more day before closing. |
-| Sentry | HEALTHY | 0 error events in 24h. 0 open unresolved issues. Clean. |
+| Vercel | HEALTHY | Latest prod: `dpl_7jwo8F` on `main` — READY. 0 runtime errors. All 20 recent deploys READY. |
+| Sentry | HEALTHY | 2 errors in 24h (below >5 alert threshold). 1 issue group: SHEAHAIRCARE-14. |
+| MongoDB | ASSUMED HEALTHY | App serving normally — no API errors in Sentry. No direct MCP check available. |
 | PostHog | NOT CONNECTED | Appointment count unavailable. Booking funnel still a blind spot. |
 
 ---
 
 ## Runtime Errors
 
-**0 errors** in last 24h.
+**2 errors** in last 24h.
 
-No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not fire overnight — either the connection held or Atlas recycled cleanly. One more clean day confirms resolution; one recurrence means the fix is still needed.
+| Issue | Title | Count | Last Seen |
+|---|---|---|---|
+| SHEAHAIRCARE-14 | `NotFoundError: removeChild on Node` | 2 | 2026-07-28 06:33 UTC |
+
+**SHEAHAIRCARE-14** — `NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.`
+Browser-side DOM error, likely a React hydration or unmount race condition. 2 occurrences, not spiking. Monitor for increase.
 
 ---
 
-## Today's Shipping Activity (2026-07-19 sprint)
+## Today's Shipping Activity
 
-7 PRs merged to main. All production deploys READY. 2 preview PRs awaiting merge.
+Recent production deploys on `main`:
 
-| PR | Title | Status |
+| Deploy | Commit | Status |
 |---|---|---|
-| #907 | fix(marketing): remove unsubstantiated claims (ARB + CPA compliance) | Preview READY |
-| #906 | feat(legal): close ungated customer signup doors (POPIA s34/s35) | Preview READY |
-| #905 | docs(agents): record bank-encryption session + backfill retraction | Prod READY |
-| #904 | chore(scripts): remove bank backfill (nothing to migrate) | Prod READY |
-| #903 | feat(membership): meter concierge + paid client tier token budgets | Prod READY |
-| #901 | feat(security): encrypt stylist bank account at rest | Prod READY |
-| #900 | feat(tiers): cap Scale's unlimited AI quotas | Prod READY |
-| #899 | feat(security): encrypt customer payout bank account at rest | Prod READY |
-| #898 | docs(agents): record customer-creator marketplace session | Prod READY |
+| `dpl_7jwo8F` | fix(consumer): session with no user redirects to sign-in (not consent wall) | READY |
+| `dpl_HgUPEv` | fix(home): stop MarketplaceRows emitting a second category rail | READY |
+| `dpl_CrRXV2` | feat(home): four self-care doors as swipeable row | READY |
+
+Feature branches in preview (not yet on `main`):
+- `feat/share-studio` — PR #1071: pre-made social assets, captions, tracked links (Share Studio)
+- `fix/reland-house-doors-scroll-row` — PR #1070: re-land swipeable doors fix
 
 ---
 
 ## Action Items
 
-- [ ] **Merge PR #906** — POPIA s34/s35: Google One Tap + magic link customer signup were ungated for age verification. Code is ready and in preview. Merge before any user acquisition.
-- [ ] **Merge PR #907** — Strips fabricated testimonials and unsubstantiated claims (ARB Code s.II Cl. 4.1 + CPA s41). In preview and ready.
-- [ ] **Watch SHEAHAIRCARE-5 one more day** — 0 events today vs 1/day for the past week. If clean tomorrow, the Atlas pool-drain race may have self-resolved or the PR #885 guard finally caught it. If it fires again, escalate: raise Atlas minPoolSize to 2 or add a connection retry wrapper.
-- [ ] **Connect PostHog** — Appointment count still unavailable. Booking funnel visibility is a blind spot.
+- [ ] **Watch SHEAHAIRCARE-14** — 2 DOM removeChild errors, last seen yesterday. Low severity now, but if it spikes after the Share Studio merge, it may be tied to new SSR/hydration paths.
+- [ ] **Merge PR #1070 / #1071** — Both preview deploys are READY. Share Studio is the priority feature.
+- [ ] **Connect PostHog** — Appointment count still a blind spot. Cannot track booking conversion without it.
+- [ ] **Add `/api/health` endpoint** — Ping MongoDB and surface status here automatically each morning.
 
 ---
 
@@ -61,18 +64,18 @@ No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not
 |---|---|---|
 | 2026-07-10 | HEALTHY | 0 unresolved issues. Hydration error resolved. 7 PRs shipped. |
 | 2026-07-11 | WARNING | SHEAHAIRCARE-Y (hooks violation, signin). 1 build failure. 8 PRs shipped. |
-| 2026-07-12 | WARNING | MongoNetworkTimeoutError on marketplace (4 events, 3 users). Sentry offline. 9 PRs shipped. |
-| 2026-07-13 | — | No check run. |
-| 2026-07-14 | WARNING | Vault 401 Unauthorized — Inngest marketing sync broken. DYNAMIC_SERVER_USAGE on /find pages. |
-| 2026-07-15 | HEALTHY | Subscription billing fully resolved. 4 PRs shipped. url.parse() only open issue. |
-| 2026-07-16 | HEALTHY | 0 Sentry errors. 9 prod deploys. Security fix (#864) shipped. url.parse() still open. |
-| 2026-07-17 | HEALTHY | 0 errors. 0 new deploys. url.parse() not seen. App stable after billing sprint. |
-| 2026-07-18 | HEALTHY | 0 errors. 9 prod deploys. Paystack billing sprint complete. url.parse() resolved. |
-| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. 4 PRs shipped. PR #896 tier caps in preview. |
-| **2026-07-20** | **HEALTHY** | **0 errors. 7 PRs merged (security + legal compliance sprint). 2 preview PRs pending merge (#906 POPIA, #907 legal copy).** |
+| 2026-07-12 | WARNING | MongoNetworkTimeoutError on marketplace (4 events). |
+| 2026-07-14 | WARNING | Vault 401 — Inngest marketing sync broken. |
+| 2026-07-15 | HEALTHY | Subscription billing resolved. 4 PRs shipped. |
+| 2026-07-16 | HEALTHY | 0 errors. 9 prod deploys. Security fix (#864) shipped. |
+| 2026-07-17 | HEALTHY | 0 errors. App stable after billing sprint. |
+| 2026-07-18 | HEALTHY | 0 errors. 9 prod deploys. Paystack billing sprint complete. |
+| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail. SHEAHAIRCARE-5 recurring. |
+| 2026-07-20 | HEALTHY | 0 errors. 7 PRs merged (security + legal compliance sprint). |
+| **2026-07-29** | **HEALTHY** | **2 errors (DOM removeChild, below threshold). All deploys READY. Share Studio in preview.** |
 
 ---
 
-_Generated: 2026-07-20 08:00 SAST_
+_Generated: 2026-07-29 08:00 SAST_
 _Vercel: [View project](https://vercel.com/mkmmogano-7968s-projects/sheahaircare)_
-_Sentry: [View errors](https://fl4ll.sentry.io/explore/discover/homepage/?dataset=errors&queryDataset=error-events&query=level%3Aerror&field=count%28%29&sort=-count%28%29&statsPeriod=24h&mode=aggregate&yAxis=count%28%29)_
+_Sentry: [View errors](https://fl4ll.sentry.io/explore/discover/homepage/?dataset=errors&queryDataset=error-events&query=&project=4511344680304640&field=issue&field=title&field=count%28%29&field=last_seen%28%29&sort=-count%28%29&statsPeriod=24h&mode=aggregate&yAxis=count%28%29)_
