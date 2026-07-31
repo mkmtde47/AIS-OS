@@ -1,11 +1,11 @@
-# Sheahaircare Daily Health — 2026-07-20
+# Sheahaircare Daily Health — 2026-07-31
 
 **Status:** HEALTHY
 **Appointments (24h):** N/A — PostHog not connected
-**Errors (24h):** 0
+**Errors (24h):** 1 (local dev noise — not a production error)
 **Uptime:** ~100% (18/20 READY, 2 CANCELED by superseding pushes)
-**Top Issue:** NONE — first clean Sentry day in 9 days
-**Recommendation:** Merge PR #906 (POPIA age gate) before any user acquisition push. PR #907 (legal copy) also needs a merge.
+**Top Issue:** SHEAHAIRCARE-11 (localhost:3001 Sentry noise) — PR #1085 fix in preview
+**Recommendation:** Merge PR #1085 to stop local builds polluting the Sentry production queue
 
 ---
 
@@ -13,45 +13,55 @@
 
 | System | Status | Notes |
 |---|---|---|
-| Vercel | HEALTHY | Latest prod: PR #905 `docs/agents-sprint-2026-07-19-encryption` — READY. 18/20 recent deploys READY. 2 CANCELED (normal — superseded by faster pushes). |
-| MongoDB | HEALTHY | 0 Sentry errors. SHEAHAIRCARE-5 silent today. Watch one more day before closing. |
-| Sentry | HEALTHY | 0 error events in 24h. 0 open unresolved issues. Clean. |
-| PostHog | NOT CONNECTED | Appointment count unavailable. Booking funnel still a blind spot. |
+| Vercel | HEALTHY | Latest prod: PR #1084 `docs/agents-md-studio-templates` — READY. 18/20 recent deploys READY. 2 CANCELED (normal — superseded). |
+| MongoDB | HEALTHY | 0 new Sentry errors. SHEAHAIRCARE-5 (/consumer render fail) last seen 12 days ago — resolved. Stable. |
+| Sentry | HEALTHY | 1 event in 24h — SHEAHAIRCARE-11, but it fired from localhost:3001 on MKM's Mac (Electron, 0 users). Not a production failure. All 11 tracked issues are resolved. |
+| PostHog | NOT CONNECTED | Appointment count unavailable. Booking funnel visibility blind spot remains. |
 
 ---
 
 ## Runtime Errors
 
-**0 errors** in last 24h.
+**1 event** in last 24h — SHEAHAIRCARE-11.
 
-No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not fire overnight — either the connection held or Atlas recycled cleanly. One more clean day confirms resolution; one recurrence means the fix is still needed.
+**TypeError: controller[kState].transformAlgorithm is not a function**
+- Origin: `GET http://localhost:3001/` — MKM's local MacBook (Electron 42.7.0, macOS 26.4.1, arm64)
+- 0 users affected. Not a real production error.
+- Root cause: Sentry was gated on `NODE_ENV === "production"`, which `next build && next start` locally also sets. MKM's own machine was reporting into the production issue queue.
+- Fix: PR #1085 (`claude/sentry-gsd-debug-8f152b`) — adds `VERCEL_ENV === "production"` as a second gate. Currently READY in preview.
+
+All other Sentry issues resolved and silent:
+- SHEAHAIRCARE-14: last seen 2 days ago (resolved)
+- SHEAHAIRCARE-13/12: last seen 4–5 days ago (resolved)
+- SHEAHAIRCARE-10: last seen 5 days ago (resolved)
+- SHEAHAIRCARE-5: last seen 12 days ago (resolved)
 
 ---
 
-## Today's Shipping Activity (2026-07-19 sprint)
+## Today's Shipping Activity (2026-07-31 sprint)
 
-7 PRs merged to main. All production deploys READY. 2 preview PRs awaiting merge.
+High-velocity day. 10 PRs merged — Studio concept lane, booking email fix, Sentry fix in preview.
 
 | PR | Title | Status |
 |---|---|---|
-| #907 | fix(marketing): remove unsubstantiated claims (ARB + CPA compliance) | Preview READY |
-| #906 | feat(legal): close ungated customer signup doors (POPIA s34/s35) | Preview READY |
-| #905 | docs(agents): record bank-encryption session + backfill retraction | Prod READY |
-| #904 | chore(scripts): remove bank backfill (nothing to migrate) | Prod READY |
-| #903 | feat(membership): meter concierge + paid client tier token budgets | Prod READY |
-| #901 | feat(security): encrypt stylist bank account at rest | Prod READY |
-| #900 | feat(tiers): cap Scale's unlimited AI quotas | Prod READY |
-| #899 | feat(security): encrypt customer payout bank account at rest | Prod READY |
-| #898 | docs(agents): record customer-creator marketplace session | Prod READY |
+| #1085 | fix(sentry): stop local production builds reporting to prod queue | Preview READY |
+| #1084 | docs(agents): current-context pointer for Studio look-templates session | Prod READY |
+| #1083 | fix(emails): surface cancel CTA above fold, add it to pending bookings, say "specialist" | Prod READY |
+| #1082 | fix: label Gqeberha as "Gqeberha (Port Elizabeth)" in customer deck | Prod READY |
+| #1081 | fix(studio): label AI concept looks in the template gallery | Prod READY |
+| #1080 | feat(studio): providers can render concept looks | Prod READY |
+| #1079 | docs: prune AGENTS.md 179KB → 77KB (57% smaller) | Prod READY |
+| #1078 | docs(agents): AGENTS.md sprint entry for Inngest cron cadence | Prod READY |
+| #1077 | feat(studio): concept-look prompt + keep concepts out of Pulse | Prod READY |
+| #1076 | perf: hourly resolve-comment-queue, destagger hourly crons | Prod READY |
+| #1075 | docs(agents): current-context pointer for landing restructure | Prod READY |
 
 ---
 
 ## Action Items
 
-- [ ] **Merge PR #906** — POPIA s34/s35: Google One Tap + magic link customer signup were ungated for age verification. Code is ready and in preview. Merge before any user acquisition.
-- [ ] **Merge PR #907** — Strips fabricated testimonials and unsubstantiated claims (ARB Code s.II Cl. 4.1 + CPA s41). In preview and ready.
-- [ ] **Watch SHEAHAIRCARE-5 one more day** — 0 events today vs 1/day for the past week. If clean tomorrow, the Atlas pool-drain race may have self-resolved or the PR #885 guard finally caught it. If it fires again, escalate: raise Atlas minPoolSize to 2 or add a connection retry wrapper.
-- [ ] **Connect PostHog** — Appointment count still unavailable. Booking funnel visibility is a blind spot.
+- [ ] **Merge PR #1085** — Sentry gate fix. Stops `next build && next start` locally from reporting into the prod queue. Cleans the issue board permanently. In preview and READY.
+- [ ] **Connect PostHog** — Appointment count still unavailable. Booking funnel is a blind spot going into any user acquisition push.
 
 ---
 
@@ -59,20 +69,18 @@ No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not
 
 | Date | Status | Top Issue |
 |---|---|---|
-| 2026-07-10 | HEALTHY | 0 unresolved issues. Hydration error resolved. 7 PRs shipped. |
-| 2026-07-11 | WARNING | SHEAHAIRCARE-Y (hooks violation, signin). 1 build failure. 8 PRs shipped. |
-| 2026-07-12 | WARNING | MongoNetworkTimeoutError on marketplace (4 events, 3 users). Sentry offline. 9 PRs shipped. |
-| 2026-07-13 | — | No check run. |
-| 2026-07-14 | WARNING | Vault 401 Unauthorized — Inngest marketing sync broken. DYNAMIC_SERVER_USAGE on /find pages. |
 | 2026-07-15 | HEALTHY | Subscription billing fully resolved. 4 PRs shipped. url.parse() only open issue. |
 | 2026-07-16 | HEALTHY | 0 Sentry errors. 9 prod deploys. Security fix (#864) shipped. url.parse() still open. |
 | 2026-07-17 | HEALTHY | 0 errors. 0 new deploys. url.parse() not seen. App stable after billing sprint. |
 | 2026-07-18 | HEALTHY | 0 errors. 9 prod deploys. Paystack billing sprint complete. url.parse() resolved. |
-| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. 4 PRs shipped. PR #896 tier caps in preview. |
-| **2026-07-20** | **HEALTHY** | **0 errors. 7 PRs merged (security + legal compliance sprint). 2 preview PRs pending merge (#906 POPIA, #907 legal copy).** |
+| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. 4 PRs shipped. |
+| 2026-07-20 | HEALTHY | 0 errors. 7 PRs merged (security + legal compliance sprint). 2 preview PRs pending merge (#906 POPIA, #907 legal). |
+| 2026-07-21–29 | — | No checks run. |
+| 2026-07-30 | WARNING | SHEAHAIRCARE-11 fired (but origin: localhost dev, not production). All issues resolved in Sentry. 10 PRs shipped. Studio concept lane landed. |
+| **2026-07-31** | **HEALTHY** | **1 Sentry event (localhost dev noise, 0 users). PR #1085 Sentry gate fix in preview. 10+ PRs shipped including Studio concept route, booking email fix.** |
 
 ---
 
-_Generated: 2026-07-20 08:00 SAST_
+_Generated: 2026-07-31 08:00 SAST_
 _Vercel: [View project](https://vercel.com/mkmmogano-7968s-projects/sheahaircare)_
 _Sentry: [View errors](https://fl4ll.sentry.io/explore/discover/homepage/?dataset=errors&queryDataset=error-events&query=level%3Aerror&field=count%28%29&sort=-count%28%29&statsPeriod=24h&mode=aggregate&yAxis=count%28%29)_
