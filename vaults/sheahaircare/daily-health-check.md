@@ -1,11 +1,11 @@
-# Sheahaircare Daily Health — 2026-07-20
+# Sheahaircare Daily Health — 2026-08-12
 
 **Status:** HEALTHY
 **Appointments (24h):** N/A — PostHog not connected
 **Errors (24h):** 0
-**Uptime:** ~100% (18/20 READY, 2 CANCELED by superseding pushes)
-**Top Issue:** NONE — first clean Sentry day in 9 days
-**Recommendation:** Merge PR #906 (POPIA age gate) before any user acquisition push. PR #907 (legal copy) also needs a merge.
+**Uptime:** 100% (20/20 recent deployments READY, 0 runtime errors)
+**Top Issue:** NONE — clean Sentry + Vercel day after a high-velocity shipping sprint
+**Recommendation:** Clean up 5 test bookings still on real calendars (per handoff notes). Disable Bluemagic auto-accept if still on from testing.
 
 ---
 
@@ -13,9 +13,9 @@
 
 | System | Status | Notes |
 |---|---|---|
-| Vercel | HEALTHY | Latest prod: PR #905 `docs/agents-sprint-2026-07-19-encryption` — READY. 18/20 recent deploys READY. 2 CANCELED (normal — superseded by faster pushes). |
-| MongoDB | HEALTHY | 0 Sentry errors. SHEAHAIRCARE-5 silent today. Watch one more day before closing. |
-| Sentry | HEALTHY | 0 error events in 24h. 0 open unresolved issues. Clean. |
+| Vercel | HEALTHY | Latest prod: PR #1223 `fix(pulse): load composer photos on open` — READY. 20/20 recent deploys READY. 0 runtime errors in 24h. |
+| MongoDB | HEALTHY | 0 Sentry errors. No DB connection failures visible. Implicit health from zero error surface. |
+| Sentry | HEALTHY | 0 error events in 24h. 0 open unresolved issues across all time. |
 | PostHog | NOT CONNECTED | Appointment count unavailable. Booking funnel still a blind spot. |
 
 ---
@@ -24,34 +24,49 @@
 
 **0 errors** in last 24h.
 
-No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not fire overnight — either the connection held or Atlas recycled cleanly. One more clean day confirms resolution; one recurrence means the fix is still needed.
+No Vercel runtime errors. No Sentry events. All surfaces clean.
 
 ---
 
-## Today's Shipping Activity (2026-07-19 sprint)
+## Today's Shipping Activity (2026-08-11/12 sprint)
 
-7 PRs merged to main. All production deploys READY. 2 preview PRs awaiting merge.
+10 PRs merged to main. All production deploys READY. Active Pulse + security sprint.
 
 | PR | Title | Status |
 |---|---|---|
-| #907 | fix(marketing): remove unsubstantiated claims (ARB + CPA compliance) | Preview READY |
-| #906 | feat(legal): close ungated customer signup doors (POPIA s34/s35) | Preview READY |
-| #905 | docs(agents): record bank-encryption session + backfill retraction | Prod READY |
-| #904 | chore(scripts): remove bank backfill (nothing to migrate) | Prod READY |
-| #903 | feat(membership): meter concierge + paid client tier token budgets | Prod READY |
-| #901 | feat(security): encrypt stylist bank account at rest | Prod READY |
-| #900 | feat(tiers): cap Scale's unlimited AI quotas | Prod READY |
-| #899 | feat(security): encrypt customer payout bank account at rest | Prod READY |
-| #898 | docs(agents): record customer-creator marketplace session | Prod READY |
+| #1223 | fix(pulse): load the composer's photos on open, not on every feed render | Prod READY |
+| #1222 | docs(agents): record the Pulse composer session and the Cloudinary config outage | Prod READY |
+| #1221 | docs(handoff): freemium reshape, verified in production | Prod READY |
+| #1220 | fix(cloudinary): configure the SDK where signed URLs are minted (SHEAHAIRCARE-1G) | Prod READY |
+| #1219 | fix: remove disable_all.cjs — unguarded mass-unsubscribe script | Prod READY |
+| #1218 | fix(pulse): stop the composer overflowing its dialog | Prod READY |
+| #1217 | fix: appointment/confirmed emit never ran (floating promise) | Prod READY |
+| #1216 | feat(pulse): put the composer on the feed | Prod READY |
+| #1215 | fix: booking CTA asked for a deposit nobody owes | Prod READY |
+| #1214 | docs(handoff): record the Pulse Season session | Prod READY |
 
 ---
 
-## Action Items
+## Security Fixes Shipped (notable)
 
-- [ ] **Merge PR #906** — POPIA s34/s35: Google One Tap + magic link customer signup were ungated for age verification. Code is ready and in preview. Merge before any user acquisition.
-- [ ] **Merge PR #907** — Strips fabricated testimonials and unsubstantiated claims (ARB Code s.II Cl. 4.1 + CPA s41). In preview and ready.
-- [ ] **Watch SHEAHAIRCARE-5 one more day** — 0 events today vs 1/day for the past week. If clean tomorrow, the Atlas pool-drain race may have self-resolved or the PR #885 guard finally caught it. If it fires again, escalate: raise Atlas minPoolSize to 2 or add a connection retry wrapper.
-- [ ] **Connect PostHog** — Appointment count still unavailable. Booking funnel visibility is a blind spot.
+**PR #1223 — Credential leak on Pulse feed (RESOLVED)**
+`getPulsePublishContext` was sending every author's full signed Cloudinary gallery URLs into the feed page payload — to users who were only scrolling. Signed URLs are bearer credentials (per `restricted-image.ts`). Fixed: `getPulsePublishContext` now returns only `enabled` + display-name consent. Photos load only when the composer opens via new `getComposerPhotos()`.
+
+**PR #1220 — Cloudinary SDK unconfigured at cold start (RESOLVED — SHEAHAIRCARE-1G)**
+`restricted-image.ts` and `private-page.ts` never called `cloudinary.config()` and relied on the module-level singleton being pre-loaded by an upload route. On a cold lambda serving only the feed, `/consumer/pulse` 500'd. Fixed: both modules now configure Cloudinary explicitly.
+
+**PR #1219 — Mass-unsubscribe script removed (RESOLVED)**
+`disable_all.cjs` — a root-level script with no dry-run, no confirmation, no environment check — could cancel the entire paying subscriber base with one command. Deleted. Zero references in codebase.
+
+---
+
+## Open Action Items (from handoff notes)
+
+- [ ] **5 test bookings on real calendars** — mentioned in handoff. Identify and cancel them to avoid no-shows or confusion.
+- [ ] **Bluemagic auto-accept** — still on from testing session. Disable manually before real traffic hits.
+- [ ] **#1197 vault edits uncommitted** — noted as open in handoff. Commit or discard.
+- [ ] **Pulse publish success path untested** — noted in agents log. `specialties` field now sends but post-publish flow has never executed end-to-end. Verify manually before pushing users to Pulse.
+- [ ] **Connect PostHog** — Appointment count still unavailable. Booking funnel visibility is a critical blind spot.
 
 ---
 
@@ -59,20 +74,16 @@ No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not
 
 | Date | Status | Top Issue |
 |---|---|---|
-| 2026-07-10 | HEALTHY | 0 unresolved issues. Hydration error resolved. 7 PRs shipped. |
-| 2026-07-11 | WARNING | SHEAHAIRCARE-Y (hooks violation, signin). 1 build failure. 8 PRs shipped. |
-| 2026-07-12 | WARNING | MongoNetworkTimeoutError on marketplace (4 events, 3 users). Sentry offline. 9 PRs shipped. |
-| 2026-07-13 | — | No check run. |
-| 2026-07-14 | WARNING | Vault 401 Unauthorized — Inngest marketing sync broken. DYNAMIC_SERVER_USAGE on /find pages. |
-| 2026-07-15 | HEALTHY | Subscription billing fully resolved. 4 PRs shipped. url.parse() only open issue. |
-| 2026-07-16 | HEALTHY | 0 Sentry errors. 9 prod deploys. Security fix (#864) shipped. url.parse() still open. |
-| 2026-07-17 | HEALTHY | 0 errors. 0 new deploys. url.parse() not seen. App stable after billing sprint. |
-| 2026-07-18 | HEALTHY | 0 errors. 9 prod deploys. Paystack billing sprint complete. url.parse() resolved. |
-| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. 4 PRs shipped. PR #896 tier caps in preview. |
-| **2026-07-20** | **HEALTHY** | **0 errors. 7 PRs merged (security + legal compliance sprint). 2 preview PRs pending merge (#906 POPIA, #907 legal copy).** |
+| 2026-07-15 | HEALTHY | Subscription billing fully resolved. 4 PRs shipped. |
+| 2026-07-16 | HEALTHY | 0 Sentry errors. 9 prod deploys. Security fix (#864) shipped. |
+| 2026-07-17 | HEALTHY | 0 errors. 0 new deploys. App stable after billing sprint. |
+| 2026-07-18 | HEALTHY | 0 errors. 9 prod deploys. Paystack billing sprint complete. |
+| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. |
+| 2026-07-20 | HEALTHY | 0 errors. 7 PRs merged (security + POPIA compliance sprint). |
+| 2026-08-12 | **HEALTHY** | **0 errors. 10 PRs merged. Pulse composer shipped. 3 security fixes resolved. Test cleanup needed.** |
 
 ---
 
-_Generated: 2026-07-20 08:00 SAST_
+_Generated: 2026-08-12 08:00 SAST_
 _Vercel: [View project](https://vercel.com/mkmmogano-7968s-projects/sheahaircare)_
 _Sentry: [View errors](https://fl4ll.sentry.io/explore/discover/homepage/?dataset=errors&queryDataset=error-events&query=level%3Aerror&field=count%28%29&sort=-count%28%29&statsPeriod=24h&mode=aggregate&yAxis=count%28%29)_
