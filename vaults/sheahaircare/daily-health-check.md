@@ -1,11 +1,11 @@
-# Sheahaircare Daily Health — 2026-07-20
+# Sheahaircare Daily Health — 2026-08-21
 
 **Status:** HEALTHY
 **Appointments (24h):** N/A — PostHog not connected
 **Errors (24h):** 0
-**Uptime:** ~100% (18/20 READY, 2 CANCELED by superseding pushes)
-**Top Issue:** NONE — first clean Sentry day in 9 days
-**Recommendation:** Merge PR #906 (POPIA age gate) before any user acquisition push. PR #907 (legal copy) also needs a merge.
+**Uptime:** ~100% (16/17 READY, 1 CANCELED by superseding push)
+**Top Issue:** NONE — 0 runtime errors. MongoDB pool drain fix (PR #1230) now live.
+**Recommendation:** Connect PostHog for appointment visibility. Watch PR #1231 (push-delivery-observability v1) — likely superseded by #1232, confirm it's closed.
 
 ---
 
@@ -13,45 +13,44 @@
 
 | System | Status | Notes |
 |---|---|---|
-| Vercel | HEALTHY | Latest prod: PR #905 `docs/agents-sprint-2026-07-19-encryption` — READY. 18/20 recent deploys READY. 2 CANCELED (normal — superseded by faster pushes). |
-| MongoDB | HEALTHY | 0 Sentry errors. SHEAHAIRCARE-5 silent today. Watch one more day before closing. |
-| Sentry | HEALTHY | 0 error events in 24h. 0 open unresolved issues. Clean. |
+| Vercel | HEALTHY | Latest prod: PR #1232 `feat/push-delivery-observability-v2` — READY. 16/17 24h deploys READY. 1 CANCELED (normal — superseded). |
+| MongoDB | HEALTHY | PR #1230 merged — Fluid Compute connection pool drain now live. SHEAHAIRCARE-5 race condition directly addressed. Watch for recurrence. |
+| Sentry | UNAVAILABLE | Auth not connected in automated session. Connect via claude.ai connector settings to restore Sentry checks. |
 | PostHog | NOT CONNECTED | Appointment count unavailable. Booking funnel still a blind spot. |
 
 ---
 
 ## Runtime Errors
 
-**0 errors** in last 24h.
-
-No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not fire overnight — either the connection held or Atlas recycled cleanly. One more clean day confirms resolution; one recurrence means the fix is still needed.
+**0 errors** in last 24h (Vercel runtime errors API).
 
 ---
 
-## Today's Shipping Activity (2026-07-19 sprint)
+## Today's Shipping Activity (2026-08-20 sprint)
 
-7 PRs merged to main. All production deploys READY. 2 preview PRs awaiting merge.
+8 PRs merged to main. All production deploys READY.
 
 | PR | Title | Status |
 |---|---|---|
-| #907 | fix(marketing): remove unsubstantiated claims (ARB + CPA compliance) | Preview READY |
-| #906 | feat(legal): close ungated customer signup doors (POPIA s34/s35) | Preview READY |
-| #905 | docs(agents): record bank-encryption session + backfill retraction | Prod READY |
-| #904 | chore(scripts): remove bank backfill (nothing to migrate) | Prod READY |
-| #903 | feat(membership): meter concierge + paid client tier token budgets | Prod READY |
-| #901 | feat(security): encrypt stylist bank account at rest | Prod READY |
-| #900 | feat(tiers): cap Scale's unlimited AI quotas | Prod READY |
-| #899 | feat(security): encrypt customer payout bank account at rest | Prod READY |
-| #898 | docs(agents): record customer-creator marketplace session | Prod READY |
+| #1232 | feat(push): per-attempt delivery records + failure-ratio alarm | Prod READY |
+| #1230 | feat(mongoose): drain connection pool on Fluid Compute suspend | Prod READY |
+| #1229 | docs(agents): record the Paystack webhook handler split (PR #1226) | Prod READY |
+| #1228 | test(inngest): ratchet sleep-step bodies against committed snapshot | Prod READY |
+| #1227 | test(conventions): standardize ops-script write opt-in on --apply | Prod READY |
+| #1226 | refactor(paystack): split webhook route into per-event handlers | Prod READY |
+| #1225 | test(conventions): enforce ops-mutation guards from ops-scripts standard | Prod READY |
+| #1224 | chore(admin): remove the three TEMPORARY price-fix routes | Prod READY |
+
+Notable: PR #1231 (push-delivery-observability v1) had a preview deploy — confirm it's closed/superseded by #1232.
 
 ---
 
 ## Action Items
 
-- [ ] **Merge PR #906** — POPIA s34/s35: Google One Tap + magic link customer signup were ungated for age verification. Code is ready and in preview. Merge before any user acquisition.
-- [ ] **Merge PR #907** — Strips fabricated testimonials and unsubstantiated claims (ARB Code s.II Cl. 4.1 + CPA s41). In preview and ready.
-- [ ] **Watch SHEAHAIRCARE-5 one more day** — 0 events today vs 1/day for the past week. If clean tomorrow, the Atlas pool-drain race may have self-resolved or the PR #885 guard finally caught it. If it fires again, escalate: raise Atlas minPoolSize to 2 or add a connection retry wrapper.
+- [ ] **Connect Sentry** — Sentry MCP requires re-auth in an interactive session (`claude mcp` or /mcp). Without it, error counts are invisible in automated checks.
 - [ ] **Connect PostHog** — Appointment count still unavailable. Booking funnel visibility is a blind spot.
+- [ ] **Watch SHEAHAIRCARE-5** — PR #1230 (Fluid Compute pool drain) is now live. This directly targets the MongoDB idle-pool race that caused the recurring `/consumer` errors. One clean day confirms resolution.
+- [ ] **Confirm PR #1231 closed** — push-delivery-observability v1 may still be open. The v2 (#1232) was merged; #1231 should be closed to avoid confusion.
 
 ---
 
@@ -59,20 +58,16 @@ No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not
 
 | Date | Status | Top Issue |
 |---|---|---|
-| 2026-07-10 | HEALTHY | 0 unresolved issues. Hydration error resolved. 7 PRs shipped. |
-| 2026-07-11 | WARNING | SHEAHAIRCARE-Y (hooks violation, signin). 1 build failure. 8 PRs shipped. |
-| 2026-07-12 | WARNING | MongoNetworkTimeoutError on marketplace (4 events, 3 users). Sentry offline. 9 PRs shipped. |
-| 2026-07-13 | — | No check run. |
-| 2026-07-14 | WARNING | Vault 401 Unauthorized — Inngest marketing sync broken. DYNAMIC_SERVER_USAGE on /find pages. |
-| 2026-07-15 | HEALTHY | Subscription billing fully resolved. 4 PRs shipped. url.parse() only open issue. |
-| 2026-07-16 | HEALTHY | 0 Sentry errors. 9 prod deploys. Security fix (#864) shipped. url.parse() still open. |
-| 2026-07-17 | HEALTHY | 0 errors. 0 new deploys. url.parse() not seen. App stable after billing sprint. |
-| 2026-07-18 | HEALTHY | 0 errors. 9 prod deploys. Paystack billing sprint complete. url.parse() resolved. |
-| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. 4 PRs shipped. PR #896 tier caps in preview. |
-| **2026-07-20** | **HEALTHY** | **0 errors. 7 PRs merged (security + legal compliance sprint). 2 preview PRs pending merge (#906 POPIA, #907 legal copy).** |
+| 2026-07-15 | HEALTHY | Subscription billing fully resolved. 4 PRs shipped. |
+| 2026-07-16 | HEALTHY | 0 Sentry errors. 9 prod deploys. Security fix (#864) shipped. |
+| 2026-07-17 | HEALTHY | 0 errors. 0 new deploys. App stable after billing sprint. |
+| 2026-07-18 | HEALTHY | 0 errors. 9 prod deploys. Paystack billing sprint complete. |
+| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail. SHEAHAIRCARE-5 recurring. |
+| 2026-07-20 | HEALTHY | 0 errors. 7 PRs merged (security + legal compliance sprint). |
+| **2026-08-21** | **HEALTHY** | **0 errors. 8 PRs merged. MongoDB pool drain fix live. Push observability shipped.** |
 
 ---
 
-_Generated: 2026-07-20 08:00 SAST_
+_Generated: 2026-08-21 08:00 SAST_
 _Vercel: [View project](https://vercel.com/mkmmogano-7968s-projects/sheahaircare)_
 _Sentry: [View errors](https://fl4ll.sentry.io/explore/discover/homepage/?dataset=errors&queryDataset=error-events&query=level%3Aerror&field=count%28%29&sort=-count%28%29&statsPeriod=24h&mode=aggregate&yAxis=count%28%29)_
