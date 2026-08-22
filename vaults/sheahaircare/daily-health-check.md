@@ -1,11 +1,11 @@
-# Sheahaircare Daily Health — 2026-07-20
+# Sheahaircare Daily Health — 2026-08-22
 
-**Status:** HEALTHY
+**Status:** WARNING
 **Appointments (24h):** N/A — PostHog not connected
-**Errors (24h):** 0
-**Uptime:** ~100% (18/20 READY, 2 CANCELED by superseding pushes)
-**Top Issue:** NONE — first clean Sentry day in 9 days
-**Recommendation:** Merge PR #906 (POPIA age gate) before any user acquisition push. PR #907 (legal copy) also needs a merge.
+**Errors (24h):** 7 (3 timeouts + 2 auth errors + 2 credential errors)
+**Uptime:** 100% (20/20 deployments READY)
+**Top Issue:** 300s timeout on `/find/pretoria.segments/_tree.segment.rsc` — RSC route hitting Vercel's execution limit
+**Recommendation:** Investigate `/find` segment route performance. 3 timeouts in ~2 minutes (21:27–21:29 UTC) suggests a heavy or unbounded DB query on the Pretoria segments tree. Add a timeout guard or paginate the RSC fetch.
 
 ---
 
@@ -13,45 +13,53 @@
 
 | System | Status | Notes |
 |---|---|---|
-| Vercel | HEALTHY | Latest prod: PR #905 `docs/agents-sprint-2026-07-19-encryption` — READY. 18/20 recent deploys READY. 2 CANCELED (normal — superseded by faster pushes). |
-| MongoDB | HEALTHY | 0 Sentry errors. SHEAHAIRCARE-5 silent today. Watch one more day before closing. |
-| Sentry | HEALTHY | 0 error events in 24h. 0 open unresolved issues. Clean. |
+| Vercel | HEALTHY | Latest prod: PR #1240 `docs/agents-md-pwa-session-2026-08-22` — READY. 20/20 recent deploys READY. 3 PRs shipped today (PWA sprint). |
+| MongoDB | UNKNOWN | Sentry unavailable (OAuth required). Timeout errors on `/find` may indicate a slow atlas query. Watch. |
+| Sentry | UNAVAILABLE | OAuth authentication required — connect via claude.ai connector settings to restore error tracking. |
 | PostHog | NOT CONNECTED | Appointment count unavailable. Booking funnel still a blind spot. |
 
 ---
 
-## Runtime Errors
+## Runtime Errors (Vercel — last 24h)
 
-**0 errors** in last 24h.
+**7 errors** across 3 groups.
 
-No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not fire overnight — either the connection held or Atlas recycled cleanly. One more clean day confirms resolution; one recurrence means the fix is still needed.
+| Error | Count | Routes | Last Seen |
+|---|---|---|---|
+| Vercel Runtime Timeout (300s) | 3 | `/find/pretoria.segments/_tree.segment.rsc`, `/[slug]/dashboard` | 2026-08-21 21:29 UTC |
+| Unhandled exception (auth handler) | 2 | `/api/auth/[...nextauth]` | 2026-08-21 15:19 UTC |
+| CredentialsSignin auth error | 2 | `/api/auth/[...nextauth]` | 2026-08-21 15:19 UTC |
+
+### Error Detail
+
+**Timeout (CRITICAL — 3 events, 1 user, ~2 min burst):**
+`/find/pretoria.segments/_tree.segment.rsc` timed out at exactly 300s. Three consecutive hits between 21:27 and 21:29 UTC, all on the same deployment (`dpl_6i9MvCnbyFHPHA2hNoP1zHNnzswV`). This is a pre-PWA deploy, so the PWA sprint didn't introduce it. The `.segments/_tree.segment.rsc` path pattern suggests a dynamic RSC route loading a segment tree — possibly an unbounded MongoDB read.
+
+**Auth errors (2 events, 1 user):**
+`CredentialsSignin` error on `/api/auth/[...nextauth]` at 15:19 UTC. Likely a failed login attempt rather than a system fault. The error is surfaced but non-critical.
 
 ---
 
-## Today's Shipping Activity (2026-07-19 sprint)
+## Today's Shipping Activity (2026-08-22 PWA sprint)
 
-7 PRs merged to main. All production deploys READY. 2 preview PRs awaiting merge.
+3 PRs merged to main. All production deploys READY.
 
 | PR | Title | Status |
 |---|---|---|
-| #907 | fix(marketing): remove unsubstantiated claims (ARB + CPA compliance) | Preview READY |
-| #906 | feat(legal): close ungated customer signup doors (POPIA s34/s35) | Preview READY |
-| #905 | docs(agents): record bank-encryption session + backfill retraction | Prod READY |
-| #904 | chore(scripts): remove bank backfill (nothing to migrate) | Prod READY |
-| #903 | feat(membership): meter concierge + paid client tier token budgets | Prod READY |
-| #901 | feat(security): encrypt stylist bank account at rest | Prod READY |
-| #900 | feat(tiers): cap Scale's unlimited AI quotas | Prod READY |
-| #899 | feat(security): encrypt customer payout bank account at rest | Prod READY |
-| #898 | docs(agents): record customer-creator marketplace session | Prod READY |
+| #1240 | docs(agents): log PWA update-detection + badge session (PRs #1238-#1239) | Prod READY |
+| #1239 | feat(pwa): badge the app icon from push, and badge customers too | Prod READY |
+| #1238 | fix(pwa): apply service-worker updates without a reinstall | Prod READY |
+
+**PWA sprint outcome:** SW now auto-applies updates via `controllerchange` + `registration.update()` on focus. Badge count pushed from server via `sendPushToUser`, so the icon updates when the app is closed. Customers now have their own badge counter.
 
 ---
 
 ## Action Items
 
-- [ ] **Merge PR #906** — POPIA s34/s35: Google One Tap + magic link customer signup were ungated for age verification. Code is ready and in preview. Merge before any user acquisition.
-- [ ] **Merge PR #907** — Strips fabricated testimonials and unsubstantiated claims (ARB Code s.II Cl. 4.1 + CPA s41). In preview and ready.
-- [ ] **Watch SHEAHAIRCARE-5 one more day** — 0 events today vs 1/day for the past week. If clean tomorrow, the Atlas pool-drain race may have self-resolved or the PR #885 guard finally caught it. If it fires again, escalate: raise Atlas minPoolSize to 2 or add a connection retry wrapper.
-- [ ] **Connect PostHog** — Appointment count still unavailable. Booking funnel visibility is a blind spot.
+- [ ] **Investigate `/find` timeout** — 3 × 300s timeouts on `pretoria.segments/_tree.segment.rsc` at 21:27–21:29 UTC. Add a DB query timeout or paginate the segment tree fetch. One user was affected. If it recurs today, treat as P1.
+- [ ] **Reconnect Sentry** — OAuth authentication needed. Without it, MongoDB errors and exception counts are invisible. Connect via claude.ai connector settings.
+- [ ] **Connect PostHog** — Appointment count unavailable. Booking funnel still a blind spot.
+- [ ] **Verify PWA badge on real device** — Badge visibility unconfirmed on an installed PWA home-screen icon. Test on Android (Chrome) before marketing the notification feature.
 
 ---
 
@@ -68,11 +76,13 @@ No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not
 | 2026-07-16 | HEALTHY | 0 Sentry errors. 9 prod deploys. Security fix (#864) shipped. url.parse() still open. |
 | 2026-07-17 | HEALTHY | 0 errors. 0 new deploys. url.parse() not seen. App stable after billing sprint. |
 | 2026-07-18 | HEALTHY | 0 errors. 9 prod deploys. Paystack billing sprint complete. url.parse() resolved. |
-| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. 4 PRs shipped. PR #896 tier caps in preview. |
-| **2026-07-20** | **HEALTHY** | **0 errors. 7 PRs merged (security + legal compliance sprint). 2 preview PRs pending merge (#906 POPIA, #907 legal copy).** |
+| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. 4 PRs shipped. |
+| 2026-07-20 | HEALTHY | 0 errors. 7 PRs merged (security + legal compliance sprint). 2 preview PRs pending merge. |
+| 2026-07-21 to 2026-08-21 | — | No check runs. |
+| **2026-08-22** | **WARNING** | **7 runtime errors: 3 × /find timeout (300s), 2 × auth exception, 2 × CredentialsSignin. 3 PRs shipped (PWA sprint). Sentry unavailable.** |
 
 ---
 
-_Generated: 2026-07-20 08:00 SAST_
+_Generated: 2026-08-22 08:00 SAST_
 _Vercel: [View project](https://vercel.com/mkmmogano-7968s-projects/sheahaircare)_
-_Sentry: [View errors](https://fl4ll.sentry.io/explore/discover/homepage/?dataset=errors&queryDataset=error-events&query=level%3Aerror&field=count%28%29&sort=-count%28%29&statsPeriod=24h&mode=aggregate&yAxis=count%28%29)_
+_Sentry: UNAVAILABLE — reconnect via claude.ai connector settings_
