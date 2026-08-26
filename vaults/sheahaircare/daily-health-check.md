@@ -1,11 +1,11 @@
-# Sheahaircare Daily Health — 2026-07-20
+# Sheahaircare Daily Health — 2026-08-26
 
-**Status:** HEALTHY
+**Status:** WARNING
 **Appointments (24h):** N/A — PostHog not connected
-**Errors (24h):** 0
-**Uptime:** ~100% (18/20 READY, 2 CANCELED by superseding pushes)
-**Top Issue:** NONE — first clean Sentry day in 9 days
-**Recommendation:** Merge PR #906 (POPIA age gate) before any user acquisition push. PR #907 (legal copy) also needs a merge.
+**Errors (24h):** 374 error-level events (Sentry) / 568 events across 50 error groups (Vercel runtime errors)
+**Uptime:** ~100% — 19/20 recent deploys READY, 1 build ERROR same-day auto-redeployed clean, no production downtime
+**Top Issue:** MongoDB Atlas TLS/SSL handshake burst (`SystemOverloadedError` + `RetryableError`) — 48 of 50 error groups, ~541 occurrences in a short window around 2026-08-25 20:13 UTC. Hit `/[slug]` (booking pages) and `/api/auth/[...nextauth]`. No recurrence since — appears self-resolved.
+**Recommendation:** Watch for a repeat Atlas SSL burst today. If it recurs, check Atlas cluster tier/connection pool sizing (errorLabelSet flags it as a system-overload condition, not a code bug). No action needed on the blocked injection attempt — the guardrail worked as designed.
 
 ---
 
@@ -13,45 +13,58 @@
 
 | System | Status | Notes |
 |---|---|---|
-| Vercel | HEALTHY | Latest prod: PR #905 `docs/agents-sprint-2026-07-19-encryption` — READY. 18/20 recent deploys READY. 2 CANCELED (normal — superseded by faster pushes). |
-| MongoDB | HEALTHY | 0 Sentry errors. SHEAHAIRCARE-5 silent today. Watch one more day before closing. |
-| Sentry | HEALTHY | 0 error events in 24h. 0 open unresolved issues. Clean. |
+| Vercel | HEALTHY | Latest prod: PR #1285 `fix(build): fail soft when generateStaticParams cannot reach the DB` — READY. 19/20 recent deploys READY. 1 ERROR (PR #1279 build, root-caused to the same Atlas flakiness) auto-redeployed successfully same session. |
+| MongoDB | WARNING | Atlas TLS/SSL alert burst (`ssl3_read_bytes:tlsv1 alert internal error`, SSL alert 80) — 541+ occurrences in ~1 minute, tagged `SystemOverloadedError`/`RetryableError`. Affected 2 users on `/[slug]`. No events since. PR #1285 (merged, now in prod) hardens `generateStaticParams` against exactly this failure mode at build time. |
+| Sentry | WARNING | 374 error-level events in 24h — almost entirely the Mongo SSL burst above. 2 unresolved issues: SHEAHAIRCARE-1N (Mongo SSL, 334 events) and SHEAHAIRCARE-1M (blocked prompt-injection attempt, 7 events, see below). |
 | PostHog | NOT CONNECTED | Appointment count unavailable. Booking funnel still a blind spot. |
 
 ---
 
-## Runtime Errors
+## Runtime Errors — Detail
 
-**0 errors** in last 24h.
+**50 error groups, 568 total occurrences** (Vercel runtime error aggregation, last 24h):
 
-No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not fire overnight — either the connection held or Atlas recycled cleanly. One more clean day confirms resolution; one recurrence means the fix is still needed.
+- **48 groups / ~541 events** — `MongoNetworkError: ssl3_read_bytes:tlsv1 alert internal error` (SSL alert 80). All clustered in a single short burst around 2026-08-25T20:13 UTC, tied to deployment `dpl_D75LPJSC2ssTGpt91bC6HZRjybw3` (PR #1276, GCM auth-tag fix). Routes: `/[slug]` (bulk of it) and `/api/auth/[...nextauth]` (28 events). One occurrence also hit `/mcp`. Labeled by the driver as `SystemOverloadedError` + `RetryableError` — this reads as an Atlas-side connection storm, not an application bug.
+- 1 group — `MissingCSRF` on an auth callback (Auth.js).
+- 1 group — unidentified stack frame, low volume.
+
+Sentry's matching issue (SHEAHAIRCARE-1N) shows the same burst: first seen and last seen both ~8 hours ago, no fresh occurrences — treating this as resolved-for-now, watching for recurrence tonight.
 
 ---
 
-## Today's Shipping Activity (2026-07-19 sprint)
+## Security Note — Blocked Prompt Injection
 
-7 PRs merged to main. All production deploys READY. 2 preview PRs awaiting merge.
+**SHEAHAIRCARE-1M** — `assistant.injection_attempt`, 7 events, `POST /api/assistant/chat`, anonymous user from Cape Town, ZA. `reason: developer-mode` — someone tried a "developer mode" jailbreak prompt against the AI concierge chat. The app's own injection guardrail caught and blocked it (logged as a `warning`, not an exploited error). No action needed — this is the defense working correctly — but worth tracking if the volume grows.
 
-| PR | Title | Status |
-|---|---|---|
-| #907 | fix(marketing): remove unsubstantiated claims (ARB + CPA compliance) | Preview READY |
-| #906 | feat(legal): close ungated customer signup doors (POPIA s34/s35) | Preview READY |
-| #905 | docs(agents): record bank-encryption session + backfill retraction | Prod READY |
-| #904 | chore(scripts): remove bank backfill (nothing to migrate) | Prod READY |
-| #903 | feat(membership): meter concierge + paid client tier token budgets | Prod READY |
-| #901 | feat(security): encrypt stylist bank account at rest | Prod READY |
-| #900 | feat(tiers): cap Scale's unlimited AI quotas | Prod READY |
-| #899 | feat(security): encrypt customer payout bank account at rest | Prod READY |
-| #898 | docs(agents): record customer-creator marketplace session | Prod READY |
+---
+
+## Today's Shipping Activity
+
+10 PRs merged to main in the latest deploy window — a security/compliance-heavy sprint:
+
+| PR | Title |
+|---|---|
+| #1285 | fix(build): fail soft when generateStaticParams cannot reach the DB |
+| #1284 | fix(auth): pin JWT session lifetime instead of inheriting the 30-day default |
+| #1283 | fix(security): bump mongoose to 9.9.4 (prototype pollution, GHSA-664h-wqgq-64gw) |
+| #1279 | fix(assistant): pin maxDuration on the streaming chat routes |
+| #1278 | chore(security): ignore unreachable js-yaml 3.14.2 (gray-matter) |
+| #1276 | fix(security): set authTagLength in decryptSecret for GCM compliance |
+| #1275 | fix(security): clear 16 transitive dependency advisories via overrides |
+| #1274 | docs(deploy): clear the TEST webhook URL during the live cutover |
+| #1273 | fix(paystack): report which MODE sent a rejected webhook |
+| #1272 | fix(paystack): name the cause of a rejected webhook signature |
+
+Notably, #1284 fixes a real security gap (session tokens were living 30 days instead of 7), and #1283 clears a prototype-pollution CVE in mongoose — both worth knowing landed today.
 
 ---
 
 ## Action Items
 
-- [ ] **Merge PR #906** — POPIA s34/s35: Google One Tap + magic link customer signup were ungated for age verification. Code is ready and in preview. Merge before any user acquisition.
-- [ ] **Merge PR #907** — Strips fabricated testimonials and unsubstantiated claims (ARB Code s.II Cl. 4.1 + CPA s41). In preview and ready.
-- [ ] **Watch SHEAHAIRCARE-5 one more day** — 0 events today vs 1/day for the past week. If clean tomorrow, the Atlas pool-drain race may have self-resolved or the PR #885 guard finally caught it. If it fires again, escalate: raise Atlas minPoolSize to 2 or add a connection retry wrapper.
-- [ ] **Connect PostHog** — Appointment count still unavailable. Booking funnel visibility is a blind spot.
+- [ ] **Watch for Atlas SSL burst recurrence** — if it fires again tonight, escalate to Atlas support or raise `minPoolSize`/connection retry tuning. PR #1285 already hardens the build-time path; the runtime path during the burst is unconfirmed as fixed.
+- [ ] **Connect PostHog** — appointment count still unavailable, booking funnel is a blind spot on every report.
+- [ ] **Connect Gmail** — this report could not be emailed; Gmail is still listed as "not yet connected" in `connections.md`. Wire it up to get these briefings pushed instead of read manually.
+- [ ] No action on SHEAHAIRCARE-1M (injection attempt) — guardrail held. Consider it noise unless volume rises.
 
 ---
 
@@ -59,20 +72,15 @@ No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not
 
 | Date | Status | Top Issue |
 |---|---|---|
-| 2026-07-10 | HEALTHY | 0 unresolved issues. Hydration error resolved. 7 PRs shipped. |
-| 2026-07-11 | WARNING | SHEAHAIRCARE-Y (hooks violation, signin). 1 build failure. 8 PRs shipped. |
-| 2026-07-12 | WARNING | MongoNetworkTimeoutError on marketplace (4 events, 3 users). Sentry offline. 9 PRs shipped. |
-| 2026-07-13 | — | No check run. |
-| 2026-07-14 | WARNING | Vault 401 Unauthorized — Inngest marketing sync broken. DYNAMIC_SERVER_USAGE on /find pages. |
-| 2026-07-15 | HEALTHY | Subscription billing fully resolved. 4 PRs shipped. url.parse() only open issue. |
-| 2026-07-16 | HEALTHY | 0 Sentry errors. 9 prod deploys. Security fix (#864) shipped. url.parse() still open. |
-| 2026-07-17 | HEALTHY | 0 errors. 0 new deploys. url.parse() not seen. App stable after billing sprint. |
-| 2026-07-18 | HEALTHY | 0 errors. 9 prod deploys. Paystack billing sprint complete. url.parse() resolved. |
-| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. 4 PRs shipped. PR #896 tier caps in preview. |
-| **2026-07-20** | **HEALTHY** | **0 errors. 7 PRs merged (security + legal compliance sprint). 2 preview PRs pending merge (#906 POPIA, #907 legal copy).** |
+| 2026-07-20 | HEALTHY | 0 errors. 7 PRs merged (security + legal compliance sprint). 2 preview PRs pending merge (#906 POPIA, #907 legal copy). |
+| **2026-08-26** | **WARNING** | **Mongo Atlas SSL/TLS burst (541 events, self-resolved). Blocked prompt-injection attempt on assistant chat. 10 PRs merged incl. session-lifetime + mongoose CVE fixes.** |
 
 ---
 
-_Generated: 2026-07-20 08:00 SAST_
+_Generated: 2026-08-26 08:00 SAST_
 _Vercel: [View project](https://vercel.com/mkmmogano-7968s-projects/sheahaircare)_
-_Sentry: [View errors](https://fl4ll.sentry.io/explore/discover/homepage/?dataset=errors&queryDataset=error-events&query=level%3Aerror&field=count%28%29&sort=-count%28%29&statsPeriod=24h&mode=aggregate&yAxis=count%28%29)_
+_Sentry: [View errors](https://fl4ll.sentry.io/explore/discover/homepage/?dataset=errors&queryDataset=error-events&query=level%3Aerror&project=4511344680304640&field=count%28%29&sort=-count%28%29&statsPeriod=24h&mode=aggregate&yAxis=count%28%29)_
+_Sentry: [SHEAHAIRCARE-1N (Mongo SSL burst)](https://fl4ll.sentry.io/issues/SHEAHAIRCARE-1N)_
+_Sentry: [SHEAHAIRCARE-1M (blocked injection attempt)](https://fl4ll.sentry.io/issues/SHEAHAIRCARE-1M)_
+
+**Note:** Email delivery to mkmmogano@gmail.com was requested but Gmail is not yet connected to this AIOS — report saved to file only. Connect Gmail to enable email delivery of future briefings.
