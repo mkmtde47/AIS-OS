@@ -1,11 +1,11 @@
-# Sheahaircare Daily Health — 2026-07-20
+# Sheahaircare Daily Health — 2026-09-10
 
 **Status:** HEALTHY
 **Appointments (24h):** N/A — PostHog not connected
 **Errors (24h):** 0
-**Uptime:** ~100% (18/20 READY, 2 CANCELED by superseding pushes)
-**Top Issue:** NONE — first clean Sentry day in 9 days
-**Recommendation:** Merge PR #906 (POPIA age gate) before any user acquisition push. PR #907 (legal copy) also needs a merge.
+**Uptime:** 100% (10/10 deploys READY in 24h; 20/20 overall)
+**Top Issue:** Domain redirect inverted — `www → 307 → apex`. Should be `apex → 308 → www`. 307 breaks POST webhooks (Paystack).
+**Recommendation:** Fix domain redirect in Vercel dashboard before next billing cycle or any Paystack webhook test. Connect PostHog to unblock appointment visibility.
 
 ---
 
@@ -13,10 +13,10 @@
 
 | System | Status | Notes |
 |---|---|---|
-| Vercel | HEALTHY | Latest prod: PR #905 `docs/agents-sprint-2026-07-19-encryption` — READY. 18/20 recent deploys READY. 2 CANCELED (normal — superseded by faster pushes). |
-| MongoDB | HEALTHY | 0 Sentry errors. SHEAHAIRCARE-5 silent today. Watch one more day before closing. |
+| Vercel | HEALTHY | Latest prod: PR #1292 `chore/verify-kit-retrofit-v2` — READY. 10 deploys in 24h, all READY. 20/20 overall. 0 runtime errors. |
+| MongoDB | HEALTHY | 0 Sentry DB errors. generateStaticParams guard (PR #1285) holding — no build-time Atlas failures. |
 | Sentry | HEALTHY | 0 error events in 24h. 0 open unresolved issues. Clean. |
-| PostHog | NOT CONNECTED | Appointment count unavailable. Booking funnel still a blind spot. |
+| PostHog | NOT CONNECTED | Appointment count unavailable. Booking funnel still blind. |
 
 ---
 
@@ -24,34 +24,38 @@
 
 **0 errors** in last 24h.
 
-No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not fire overnight — either the connection held or Atlas recycled cleanly. One more clean day confirms resolution; one recurrence means the fix is still needed.
+No Vercel runtime errors. No Sentry events. App is clean.
 
 ---
 
-## Today's Shipping Activity (2026-07-19 sprint)
+## Today's Shipping Activity (24h)
 
-7 PRs merged to main. All production deploys READY. 2 preview PRs awaiting merge.
+10 deploys — 5 to production, 5 preview. All READY.
 
-| PR | Title | Status |
-|---|---|---|
-| #907 | fix(marketing): remove unsubstantiated claims (ARB + CPA compliance) | Preview READY |
-| #906 | feat(legal): close ungated customer signup doors (POPIA s34/s35) | Preview READY |
-| #905 | docs(agents): record bank-encryption session + backfill retraction | Prod READY |
-| #904 | chore(scripts): remove bank backfill (nothing to migrate) | Prod READY |
-| #903 | feat(membership): meter concierge + paid client tier token budgets | Prod READY |
-| #901 | feat(security): encrypt stylist bank account at rest | Prod READY |
-| #900 | feat(tiers): cap Scale's unlimited AI quotas | Prod READY |
-| #899 | feat(security): encrypt customer payout bank account at rest | Prod READY |
-| #898 | docs(agents): record customer-creator marketplace session | Prod READY |
+| PR | Title | Type | Status |
+|---|---|---|---|
+| #1292 | chore: retrofit verify-kit (v2 — rebuilt on clean kit) | Prod | READY |
+| #1291 | chore(ci): retire typecheck.yml, superseded by verify.yml | Prod | READY |
+| #1289 | test(conventions): ratchet four prose-only rules + close open endpoint | Prod | READY |
+| #1288 | docs: handoff — security-remediation + www TLS outage session | Prod | READY |
+| #1287 | fix(security): authorize subscription-cleanup actions; write README | Prod | READY |
+| #1292 | chore: retrofit verify-kit (v2) | Preview | READY |
+| #1291 | chore(ci): retire typecheck.yml | Preview | READY |
+| #1290 | chore: retrofit verify-kit (original, red CI) | Preview | READY |
+| #1289 | test(conventions): ratchet four prose-only rules | Preview | READY |
+| #1288 | docs: handoff 2026-09-07 | Preview | READY |
+
+**Notable:** PR #1287 patched a security gap — `auditSubscriptions()` and `fixSubscriptions()` were "use server" exports with zero auth. An unauthenticated POST could mass-disable paid Paystack subscriptions. Now guarded with `requireAdminSection("revenue")`. Critical fix.
+
+**Also notable:** verify-kit is now wired in. Suite grew from 3,640 → 3,684 tests across 390 → 398 files. Harness now asserts file count, so a glob that silently matches nothing no longer exits 0.
 
 ---
 
-## Action Items
+## Open Issues
 
-- [ ] **Merge PR #906** — POPIA s34/s35: Google One Tap + magic link customer signup were ungated for age verification. Code is ready and in preview. Merge before any user acquisition.
-- [ ] **Merge PR #907** — Strips fabricated testimonials and unsubstantiated claims (ARB Code s.II Cl. 4.1 + CPA s41). In preview and ready.
-- [ ] **Watch SHEAHAIRCARE-5 one more day** — 0 events today vs 1/day for the past week. If clean tomorrow, the Atlas pool-drain race may have self-resolved or the PR #885 guard finally caught it. If it fires again, escalate: raise Atlas minPoolSize to 2 or add a connection retry wrapper.
-- [ ] **Connect PostHog** — Appointment count still unavailable. Booking funnel visibility is a blind spot.
+- [ ] **Fix domain redirect** — `www → 307 → apex` is inverted. Should be `apex → 308 → www` since all env vars and Paystack callbacks point to www. A 307 breaks POST webhooks. Fix in Vercel Domains settings.
+- [ ] **DAST gate is static-only** — The `gate: pass` on record from the 2026-08-25/26 security sprint is static analysis only. Dynamic probes all failed during the www TLS outage. Do not use it to gate hard launch. Re-run DAST when the domain redirect is fixed.
+- [ ] **Connect PostHog** — Appointment count still unavailable. Booking funnel is a blind spot.
 
 ---
 
@@ -59,20 +63,17 @@ No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not
 
 | Date | Status | Top Issue |
 |---|---|---|
-| 2026-07-10 | HEALTHY | 0 unresolved issues. Hydration error resolved. 7 PRs shipped. |
-| 2026-07-11 | WARNING | SHEAHAIRCARE-Y (hooks violation, signin). 1 build failure. 8 PRs shipped. |
-| 2026-07-12 | WARNING | MongoNetworkTimeoutError on marketplace (4 events, 3 users). Sentry offline. 9 PRs shipped. |
-| 2026-07-13 | — | No check run. |
-| 2026-07-14 | WARNING | Vault 401 Unauthorized — Inngest marketing sync broken. DYNAMIC_SERVER_USAGE on /find pages. |
-| 2026-07-15 | HEALTHY | Subscription billing fully resolved. 4 PRs shipped. url.parse() only open issue. |
-| 2026-07-16 | HEALTHY | 0 Sentry errors. 9 prod deploys. Security fix (#864) shipped. url.parse() still open. |
-| 2026-07-17 | HEALTHY | 0 errors. 0 new deploys. url.parse() not seen. App stable after billing sprint. |
-| 2026-07-18 | HEALTHY | 0 errors. 9 prod deploys. Paystack billing sprint complete. url.parse() resolved. |
-| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. 4 PRs shipped. PR #896 tier caps in preview. |
-| **2026-07-20** | **HEALTHY** | **0 errors. 7 PRs merged (security + legal compliance sprint). 2 preview PRs pending merge (#906 POPIA, #907 legal copy).** |
+| 2026-07-15 | HEALTHY | Subscription billing fully resolved. 4 PRs shipped. |
+| 2026-07-16 | HEALTHY | 0 errors. 9 prod deploys. Security fix (#864) shipped. |
+| 2026-07-17 | HEALTHY | 0 errors. 0 new deploys. App stable after billing sprint. |
+| 2026-07-18 | HEALTHY | 0 errors. 9 prod deploys. Paystack billing sprint complete. |
+| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. |
+| 2026-07-20 | HEALTHY | 0 errors. 7 PRs merged (security + legal compliance sprint). |
+| 2026-08-25/26 | WARNING | www TLS outage voided DAST run. Redirect now inverted (www→apex). |
+| **2026-09-10** | **HEALTHY** | **0 errors. 5 prod deploys (security auth fix + CI overhaul). Domain redirect open.** |
 
 ---
 
-_Generated: 2026-07-20 08:00 SAST_
+_Generated: 2026-09-10 08:00 SAST_
 _Vercel: [View project](https://vercel.com/mkmmogano-7968s-projects/sheahaircare)_
 _Sentry: [View errors](https://fl4ll.sentry.io/explore/discover/homepage/?dataset=errors&queryDataset=error-events&query=level%3Aerror&field=count%28%29&sort=-count%28%29&statsPeriod=24h&mode=aggregate&yAxis=count%28%29)_
