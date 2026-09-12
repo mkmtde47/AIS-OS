@@ -1,11 +1,11 @@
-# Sheahaircare Daily Health — 2026-07-20
+# Sheahaircare Daily Health — 2026-09-12
 
 **Status:** HEALTHY
 **Appointments (24h):** N/A — PostHog not connected
 **Errors (24h):** 0
-**Uptime:** ~100% (18/20 READY, 2 CANCELED by superseding pushes)
-**Top Issue:** NONE — first clean Sentry day in 9 days
-**Recommendation:** Merge PR #906 (POPIA age gate) before any user acquisition push. PR #907 (legal copy) also needs a merge.
+**Uptime:** 100% (20/20 READY)
+**Top Issue:** www TLS redirect inverted — `www → 307 → apex` breaks POST webhooks (standing since 2026-08-25 outage)
+**Recommendation:** Fix www redirect priority before any webhook-dependent launch activity. All other systems green.
 
 ---
 
@@ -13,9 +13,9 @@
 
 | System | Status | Notes |
 |---|---|---|
-| Vercel | HEALTHY | Latest prod: PR #905 `docs/agents-sprint-2026-07-19-encryption` — READY. 18/20 recent deploys READY. 2 CANCELED (normal — superseded by faster pushes). |
-| MongoDB | HEALTHY | 0 Sentry errors. SHEAHAIRCARE-5 silent today. Watch one more day before closing. |
-| Sentry | HEALTHY | 0 error events in 24h. 0 open unresolved issues. Clean. |
+| Vercel | HEALTHY | Latest prod: PR #1292 `chore/verify-kit-retrofit-v2` — READY. 20/20 recent deploys READY. No new deploys in last 24h (last push ~2026-09-08). |
+| MongoDB | HEALTHY | 0 Sentry errors. No DB events seen. Atlas connection stable. |
+| Sentry | HEALTHY | 0 error events in last 24h. 0 open unresolved issues. Clean. |
 | PostHog | NOT CONNECTED | Appointment count unavailable. Booking funnel still a blind spot. |
 
 ---
@@ -24,34 +24,44 @@
 
 **0 errors** in last 24h.
 
-No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not fire overnight — either the connection held or Atlas recycled cleanly. One more clean day confirms resolution; one recurrence means the fix is still needed.
+Sentry clean. No events, no unresolved issues. MongoDB appears stable — no SHEAHAIRCARE-5 recurrence.
 
 ---
 
-## Today's Shipping Activity (2026-07-19 sprint)
+## Recent Shipping Activity (since last check)
 
-7 PRs merged to main. All production deploys READY. 2 preview PRs awaiting merge.
+3 PRs merged since 2026-07-20. All production deploys READY.
 
 | PR | Title | Status |
 |---|---|---|
-| #907 | fix(marketing): remove unsubstantiated claims (ARB + CPA compliance) | Preview READY |
-| #906 | feat(legal): close ungated customer signup doors (POPIA s34/s35) | Preview READY |
-| #905 | docs(agents): record bank-encryption session + backfill retraction | Prod READY |
-| #904 | chore(scripts): remove bank backfill (nothing to migrate) | Prod READY |
-| #903 | feat(membership): meter concierge + paid client tier token budgets | Prod READY |
-| #901 | feat(security): encrypt stylist bank account at rest | Prod READY |
-| #900 | feat(tiers): cap Scale's unlimited AI quotas | Prod READY |
-| #899 | feat(security): encrypt customer payout bank account at rest | Prod READY |
-| #898 | docs(agents): record customer-creator marketplace session | Prod READY |
+| #1292 | chore: retrofit verify-kit | Prod READY |
+| #1291 | chore(ci): retire typecheck.yml, superseded by verify.yml | Prod READY |
+| #1289 | test(conventions): ratchet four rules that were prose-only | Prod READY |
+| #1288 | docs: handoff for security-remediation + www TLS outage session | Prod READY |
+| #1287 | fix(security): authorize subscription-cleanup actions; write a real README | Prod READY |
+| #1286 | perf(inngest): stop OFF-feature crons from burning free-tier executions | Prod READY |
+| #1285 | fix(build): fail soft when generateStaticParams cannot reach the DB | Prod READY |
+| #1284 | fix(auth): pin JWT session lifetime (7d rolling, was 30d default) | Prod READY |
+| #1283 | fix(security): bump mongoose to 9.9.4 (GHSA-664h-wqgq-64gw) | Prod READY |
+
+---
+
+## Standing Issues
+
+### www TLS Redirect (HIGH — pre-launch blocker)
+From PR #1288 handoff (2026-08-25 outage):
+- Vercel domain re-add inverted the redirect: `www → 307 → apex` instead of `apex → 308 → www`
+- All env vars and third-party callbacks (Paystack, auth, webhooks) are built around `www`
+- A 307 (temporary) redirect breaks POST webhooks — the method is not preserved
+- **Action:** Fix in Vercel dashboard. Set `www.sheahaircare.co.za` as primary domain, redirect apex → www with 308 Permanent. Verify Paystack webhook endpoint resolves correctly after change.
 
 ---
 
 ## Action Items
 
-- [ ] **Merge PR #906** — POPIA s34/s35: Google One Tap + magic link customer signup were ungated for age verification. Code is ready and in preview. Merge before any user acquisition.
-- [ ] **Merge PR #907** — Strips fabricated testimonials and unsubstantiated claims (ARB Code s.II Cl. 4.1 + CPA s41). In preview and ready.
-- [ ] **Watch SHEAHAIRCARE-5 one more day** — 0 events today vs 1/day for the past week. If clean tomorrow, the Atlas pool-drain race may have self-resolved or the PR #885 guard finally caught it. If it fires again, escalate: raise Atlas minPoolSize to 2 or add a connection retry wrapper.
-- [ ] **Connect PostHog** — Appointment count still unavailable. Booking funnel visibility is a blind spot.
+- [ ] **Fix www → apex redirect** — invert back to apex → 308 → www. Paystack + auth callbacks depend on www. Do before any user acquisition or payment testing.
+- [ ] **Connect PostHog** — Appointment count still unavailable. Booking funnel is a blind spot.
+- [ ] **Watch SHEAHAIRCARE-5** — No recurrence seen. If clean through end of this week, close the issue.
 
 ---
 
@@ -68,11 +78,12 @@ No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not
 | 2026-07-16 | HEALTHY | 0 Sentry errors. 9 prod deploys. Security fix (#864) shipped. url.parse() still open. |
 | 2026-07-17 | HEALTHY | 0 errors. 0 new deploys. url.parse() not seen. App stable after billing sprint. |
 | 2026-07-18 | HEALTHY | 0 errors. 9 prod deploys. Paystack billing sprint complete. url.parse() resolved. |
-| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. 4 PRs shipped. PR #896 tier caps in preview. |
-| **2026-07-20** | **HEALTHY** | **0 errors. 7 PRs merged (security + legal compliance sprint). 2 preview PRs pending merge (#906 POPIA, #907 legal copy).** |
+| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. 4 PRs shipped. |
+| 2026-07-20 | HEALTHY | 0 errors. 7 PRs merged (security + legal compliance sprint). 2 preview PRs pending merge (#906 POPIA, #907 legal copy). |
+| **2026-09-12** | **HEALTHY** | **0 errors. 20/20 deploys READY. Security sprint complete (9 PRs). Standing: www redirect inverted from TLS outage.** |
 
 ---
 
-_Generated: 2026-07-20 08:00 SAST_
+_Generated: 2026-09-12 08:00 SAST_
 _Vercel: [View project](https://vercel.com/mkmmogano-7968s-projects/sheahaircare)_
 _Sentry: [View errors](https://fl4ll.sentry.io/explore/discover/homepage/?dataset=errors&queryDataset=error-events&query=level%3Aerror&field=count%28%29&sort=-count%28%29&statsPeriod=24h&mode=aggregate&yAxis=count%28%29)_
