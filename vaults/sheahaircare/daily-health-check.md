@@ -1,11 +1,11 @@
-# Sheahaircare Daily Health — 2026-07-20
+# Sheahaircare Daily Health — 2026-09-18
 
 **Status:** HEALTHY
 **Appointments (24h):** N/A — PostHog not connected
 **Errors (24h):** 0
-**Uptime:** ~100% (18/20 READY, 2 CANCELED by superseding pushes)
-**Top Issue:** NONE — first clean Sentry day in 9 days
-**Recommendation:** Merge PR #906 (POPIA age gate) before any user acquisition push. PR #907 (legal copy) also needs a merge.
+**Uptime:** 100% (20/20 deployments READY)
+**Top Issue:** www redirect inverted (307 → apex instead of 308 → www) — Paystack webhooks at risk
+**Recommendation:** Verify Paystack webhook delivery. Fix www → apex 307 to apex → 308 → www before any user acquisition push.
 
 ---
 
@@ -13,10 +13,10 @@
 
 | System | Status | Notes |
 |---|---|---|
-| Vercel | HEALTHY | Latest prod: PR #905 `docs/agents-sprint-2026-07-19-encryption` — READY. 18/20 recent deploys READY. 2 CANCELED (normal — superseded by faster pushes). |
-| MongoDB | HEALTHY | 0 Sentry errors. SHEAHAIRCARE-5 silent today. Watch one more day before closing. |
+| Vercel | HEALTHY | Latest prod: PR #1292 `chore: retrofit verify-kit` — READY. 20/20 recent deploys READY. |
+| MongoDB | HEALTHY | 0 Sentry errors. DB build-time guard (PR #1285) in place. |
 | Sentry | HEALTHY | 0 error events in 24h. 0 open unresolved issues. Clean. |
-| PostHog | NOT CONNECTED | Appointment count unavailable. Booking funnel still a blind spot. |
+| PostHog | NOT CONNECTED | Appointment count unavailable. Booking funnel blind spot continues. |
 
 ---
 
@@ -24,34 +24,43 @@
 
 **0 errors** in last 24h.
 
-No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not fire overnight — either the connection held or Atlas recycled cleanly. One more clean day confirms resolution; one recurrence means the fix is still needed.
+No Sentry events. No open unresolved issues in the last 24h.
 
 ---
 
-## Today's Shipping Activity (2026-07-19 sprint)
+## Today's Shipping Activity (2026-09-18)
 
-7 PRs merged to main. All production deploys READY. 2 preview PRs awaiting merge.
+2 PRs merged to main. Both production deploys READY.
 
 | PR | Title | Status |
 |---|---|---|
-| #907 | fix(marketing): remove unsubstantiated claims (ARB + CPA compliance) | Preview READY |
-| #906 | feat(legal): close ungated customer signup doors (POPIA s34/s35) | Preview READY |
-| #905 | docs(agents): record bank-encryption session + backfill retraction | Prod READY |
-| #904 | chore(scripts): remove bank backfill (nothing to migrate) | Prod READY |
-| #903 | feat(membership): meter concierge + paid client tier token budgets | Prod READY |
-| #901 | feat(security): encrypt stylist bank account at rest | Prod READY |
-| #900 | feat(tiers): cap Scale's unlimited AI quotas | Prod READY |
-| #899 | feat(security): encrypt customer payout bank account at rest | Prod READY |
-| #898 | docs(agents): record customer-creator marketplace session | Prod READY |
+| #1292 | chore: retrofit verify-kit | Prod READY (latest) |
+| #1291 | chore(ci): retire typecheck.yml, superseded by verify.yml | Prod READY |
+
+**CI infrastructure sprint summary:** verify-kit lands 3 new ratchet seeds (deferred-work, entitlement-predicates, keyset-pagination) not previously guarded. Test suite expanded 3,640 → 3,684 tests across 390 → 398 files. Harness now asserts file count — a glob matching nothing no longer exits 0 silently.
+
+---
+
+## Open Issue: www Redirect Inversion
+
+Flagged in PR #1288 handoff (2026-08-25/26 session). Not yet resolved.
+
+**Problem:** After the www TLS outage, the domain was re-added with the redirect inverted:
+- Current: `www → 307 → apex`
+- Expected: `apex → 308 → www`
+
+Every env var and third-party callback (Paystack webhooks) is built around `www`. A 307 (temporary, no body) breaks POST webhooks — Paystack may be silently dropping payment events.
+
+**Risk:** High. 0 Sentry errors could mean it's fine, or it could mean failures are uninstrumented.
+**Action:** Check Paystack webhook delivery logs. Flip the redirect in Vercel domain settings.
 
 ---
 
 ## Action Items
 
-- [ ] **Merge PR #906** — POPIA s34/s35: Google One Tap + magic link customer signup were ungated for age verification. Code is ready and in preview. Merge before any user acquisition.
-- [ ] **Merge PR #907** — Strips fabricated testimonials and unsubstantiated claims (ARB Code s.II Cl. 4.1 + CPA s41). In preview and ready.
-- [ ] **Watch SHEAHAIRCARE-5 one more day** — 0 events today vs 1/day for the past week. If clean tomorrow, the Atlas pool-drain race may have self-resolved or the PR #885 guard finally caught it. If it fires again, escalate: raise Atlas minPoolSize to 2 or add a connection retry wrapper.
-- [ ] **Connect PostHog** — Appointment count still unavailable. Booking funnel visibility is a blind spot.
+- [ ] **Fix www redirect** — Flip `www → 307 → apex` to `apex → 308 → www` in Vercel domain settings. Verify Paystack webhook delivery before any bookings go live.
+- [ ] **Connect PostHog** — Appointment count still unavailable. Booking funnel visibility remains a blind spot.
+- [ ] **Verify security gate** — The `gate: pass` on record is STATIC-ONLY. Dynamic probes failed during the Aug 25 TLS outage. Do not use it as a hard-launch gate without a fresh DAST run.
 
 ---
 
@@ -68,11 +77,12 @@ No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not
 | 2026-07-16 | HEALTHY | 0 Sentry errors. 9 prod deploys. Security fix (#864) shipped. url.parse() still open. |
 | 2026-07-17 | HEALTHY | 0 errors. 0 new deploys. url.parse() not seen. App stable after billing sprint. |
 | 2026-07-18 | HEALTHY | 0 errors. 9 prod deploys. Paystack billing sprint complete. url.parse() resolved. |
-| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. 4 PRs shipped. PR #896 tier caps in preview. |
-| **2026-07-20** | **HEALTHY** | **0 errors. 7 PRs merged (security + legal compliance sprint). 2 preview PRs pending merge (#906 POPIA, #907 legal copy).** |
+| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. 4 PRs shipped. |
+| 2026-07-20 | HEALTHY | 0 errors. 7 PRs merged (security + legal compliance sprint). 2 preview PRs pending merge. |
+| **2026-09-18** | **HEALTHY** | **0 errors. 2 PRs merged (CI infra sprint). www redirect inversion open — Paystack webhook risk.** |
 
 ---
 
-_Generated: 2026-07-20 08:00 SAST_
+_Generated: 2026-09-18 08:00 SAST_
 _Vercel: [View project](https://vercel.com/mkmmogano-7968s-projects/sheahaircare)_
 _Sentry: [View errors](https://fl4ll.sentry.io/explore/discover/homepage/?dataset=errors&queryDataset=error-events&query=level%3Aerror&field=count%28%29&sort=-count%28%29&statsPeriod=24h&mode=aggregate&yAxis=count%28%29)_
