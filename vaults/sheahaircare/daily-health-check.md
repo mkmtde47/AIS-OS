@@ -1,11 +1,11 @@
-# Sheahaircare Daily Health — 2026-07-20
+# Sheahaircare Daily Health — 2026-09-19
 
-**Status:** HEALTHY
+**Status:** WARNING
 **Appointments (24h):** N/A — PostHog not connected
-**Errors (24h):** 0
-**Uptime:** ~100% (18/20 READY, 2 CANCELED by superseding pushes)
-**Top Issue:** NONE — first clean Sentry day in 9 days
-**Recommendation:** Merge PR #906 (POPIA age gate) before any user acquisition push. PR #907 (legal copy) also needs a merge.
+**Errors (24h):** 3 events (1 issue — SHEAHAIRCARE-1Q)
+**Uptime:** 100% (5/5 deploys READY in last 24h)
+**Top Issue:** UnhandledRejection on `/verify-email` — Object Not Found (Id:2, update) — 3 events, 0 users, first seen 16h ago
+**Recommendation:** Investigate SHEAHAIRCARE-1Q. PR #1292 (verify-kit retrofit) shipped this morning — likely the cause. Check `/verify-email` route for a stale ID reference.
 
 ---
 
@@ -13,66 +13,64 @@
 
 | System | Status | Notes |
 |---|---|---|
-| Vercel | HEALTHY | Latest prod: PR #905 `docs/agents-sprint-2026-07-19-encryption` — READY. 18/20 recent deploys READY. 2 CANCELED (normal — superseded by faster pushes). |
-| MongoDB | HEALTHY | 0 Sentry errors. SHEAHAIRCARE-5 silent today. Watch one more day before closing. |
-| Sentry | HEALTHY | 0 error events in 24h. 0 open unresolved issues. Clean. |
+| Vercel | HEALTHY | Latest prod: PR #1291 `chore(ci): retire typecheck.yml` — READY. 5 deploys in 24h, all READY. |
+| Sentry | WARNING | 1 unresolved issue (SHEAHAIRCARE-1Q). 3 error events. Culprit: `/verify-email`. |
+| MongoDB | HEALTHY | No DB connection errors in Sentry. SHEAHAIRCARE-5 (idle-pool race) has been silent since 2026-07-20. |
 | PostHog | NOT CONNECTED | Appointment count unavailable. Booking funnel still a blind spot. |
 
 ---
 
-## Runtime Errors
+## Runtime Errors (Last 24h)
 
-**0 errors** in last 24h.
+**3 events** from 1 issue.
 
-No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not fire overnight — either the connection held or Atlas recycled cleanly. One more clean day confirms resolution; one recurrence means the fix is still needed.
+### SHEAHAIRCARE-1Q — NEW
+- **Error:** `UnhandledRejection: Non-Error promise rejection captured with value: Object Not Found Matching Id:2, MethodName:update, ParamCount:4`
+- **Culprit:** `/verify-email`
+- **Events:** 3
+- **Users affected:** 0
+- **First seen:** 16h ago (2026-09-18 ~16:00 SAST)
+- **Last seen:** 16h ago (same burst — not recurring since)
+- **Likely cause:** PR #1292 (`chore: retrofit verify-kit`) was deployed this morning and touches the verify flow. This pattern (Object Not Found on `update`) typically means a stale or missing document ID is being passed to a DB update call.
 
 ---
 
-## Today's Shipping Activity (2026-07-19 sprint)
+## Today's Deployments (Last 24h)
 
-7 PRs merged to main. All production deploys READY. 2 preview PRs awaiting merge.
+All 5 production deploys READY.
 
 | PR | Title | Status |
 |---|---|---|
-| #907 | fix(marketing): remove unsubstantiated claims (ARB + CPA compliance) | Preview READY |
-| #906 | feat(legal): close ungated customer signup doors (POPIA s34/s35) | Preview READY |
-| #905 | docs(agents): record bank-encryption session + backfill retraction | Prod READY |
-| #904 | chore(scripts): remove bank backfill (nothing to migrate) | Prod READY |
-| #903 | feat(membership): meter concierge + paid client tier token budgets | Prod READY |
-| #901 | feat(security): encrypt stylist bank account at rest | Prod READY |
-| #900 | feat(tiers): cap Scale's unlimited AI quotas | Prod READY |
-| #899 | feat(security): encrypt customer payout bank account at rest | Prod READY |
-| #898 | docs(agents): record customer-creator marketplace session | Prod READY |
+| #1292 | chore: retrofit verify-kit | READY |
+| #1291 | chore(ci): retire typecheck.yml, superseded by verify.yml | READY |
+| #1289 | test(conventions): ratchet four prose rules + close second open endpoint | READY |
+| #1288 | docs(agents): handoff for security-remediation + www TLS outage session | READY |
+| #1287 | fix(security): authorize subscription-cleanup actions; write a real README | READY |
 
 ---
 
 ## Action Items
 
-- [ ] **Merge PR #906** — POPIA s34/s35: Google One Tap + magic link customer signup were ungated for age verification. Code is ready and in preview. Merge before any user acquisition.
-- [ ] **Merge PR #907** — Strips fabricated testimonials and unsubstantiated claims (ARB Code s.II Cl. 4.1 + CPA s41). In preview and ready.
-- [ ] **Watch SHEAHAIRCARE-5 one more day** — 0 events today vs 1/day for the past week. If clean tomorrow, the Atlas pool-drain race may have self-resolved or the PR #885 guard finally caught it. If it fires again, escalate: raise Atlas minPoolSize to 2 or add a connection retry wrapper.
-- [ ] **Connect PostHog** — Appointment count still unavailable. Booking funnel visibility is a blind spot.
+- [ ] **Investigate SHEAHAIRCARE-1Q** — `/verify-email` UnhandledRejection. 3 events, 16h ago. Likely tied to PR #1292 verify-kit retrofit. Check what document ID is being passed to the `update` call and whether the document exists before updating.
+- [ ] **Connect PostHog** — Appointment count has been unavailable since monitoring began. Booking funnel is a persistent blind spot. Wire it up.
+- [ ] **Close SHEAHAIRCARE-5 if still silent** — MongoDB idle-pool race on `/consumer` last fired on 2026-07-19. Has been quiet for 61 days. Safe to resolve now.
 
 ---
 
 ## Trend
 
-| Date | Status | Top Issue |
-|---|---|---|
-| 2026-07-10 | HEALTHY | 0 unresolved issues. Hydration error resolved. 7 PRs shipped. |
-| 2026-07-11 | WARNING | SHEAHAIRCARE-Y (hooks violation, signin). 1 build failure. 8 PRs shipped. |
-| 2026-07-12 | WARNING | MongoNetworkTimeoutError on marketplace (4 events, 3 users). Sentry offline. 9 PRs shipped. |
-| 2026-07-13 | — | No check run. |
-| 2026-07-14 | WARNING | Vault 401 Unauthorized — Inngest marketing sync broken. DYNAMIC_SERVER_USAGE on /find pages. |
-| 2026-07-15 | HEALTHY | Subscription billing fully resolved. 4 PRs shipped. url.parse() only open issue. |
-| 2026-07-16 | HEALTHY | 0 Sentry errors. 9 prod deploys. Security fix (#864) shipped. url.parse() still open. |
-| 2026-07-17 | HEALTHY | 0 errors. 0 new deploys. url.parse() not seen. App stable after billing sprint. |
-| 2026-07-18 | HEALTHY | 0 errors. 9 prod deploys. Paystack billing sprint complete. url.parse() resolved. |
-| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. 4 PRs shipped. PR #896 tier caps in preview. |
-| **2026-07-20** | **HEALTHY** | **0 errors. 7 PRs merged (security + legal compliance sprint). 2 preview PRs pending merge (#906 POPIA, #907 legal copy).** |
+| Date | Status | Errors | Top Issue |
+|---|---|---|---|
+| 2026-07-15 | HEALTHY | 0 | Subscription billing resolved. |
+| 2026-07-16 | HEALTHY | 0 | 9 prod deploys. Security fix shipped. |
+| 2026-07-17 | HEALTHY | 0 | 0 new deploys. App stable. |
+| 2026-07-18 | HEALTHY | 0 | 9 prod deploys. Paystack billing sprint done. |
+| 2026-07-19 | WARNING | 1 | SHEAHAIRCARE-5 recurring. /consumer render fail. |
+| 2026-07-20 | HEALTHY | 0 | 7 PRs merged. Security + legal compliance sprint. 2 preview PRs pending. |
+| 2026-09-19 | **WARNING** | 3 | **SHEAHAIRCARE-1Q: /verify-email UnhandledRejection. Likely PR #1292 verify-kit regression.** |
 
 ---
 
-_Generated: 2026-07-20 08:00 SAST_
+_Generated: 2026-09-19 08:00 SAST_
 _Vercel: [View project](https://vercel.com/mkmmogano-7968s-projects/sheahaircare)_
-_Sentry: [View errors](https://fl4ll.sentry.io/explore/discover/homepage/?dataset=errors&queryDataset=error-events&query=level%3Aerror&field=count%28%29&sort=-count%28%29&statsPeriod=24h&mode=aggregate&yAxis=count%28%29)_
+_Sentry: [View errors](https://fl4ll.sentry.io/issues/SHEAHAIRCARE-1Q)_
