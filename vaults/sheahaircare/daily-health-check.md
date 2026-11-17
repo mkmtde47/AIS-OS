@@ -1,11 +1,11 @@
-# Sheahaircare Daily Health — 2026-07-20
+# Sheahaircare Daily Health — 2026-11-17
 
 **Status:** HEALTHY
 **Appointments (24h):** N/A — PostHog not connected
 **Errors (24h):** 0
-**Uptime:** ~100% (18/20 READY, 2 CANCELED by superseding pushes)
-**Top Issue:** NONE — first clean Sentry day in 9 days
-**Recommendation:** Merge PR #906 (POPIA age gate) before any user acquisition push. PR #907 (legal copy) also needs a merge.
+**Uptime:** ~100% (latest prod deploy READY; 9/11 recent deploys READY)
+**Top Issue:** No active incidents. Last prod deploy was 53 days ago (Sep 25, 2026).
+**Recommendation:** ALL CLEAR on errors. Connect PostHog for appointment visibility. Investigate 2 BLOCKED preview deploys.
 
 ---
 
@@ -13,9 +13,9 @@
 
 | System | Status | Notes |
 |---|---|---|
-| Vercel | HEALTHY | Latest prod: PR #905 `docs/agents-sprint-2026-07-19-encryption` — READY. 18/20 recent deploys READY. 2 CANCELED (normal — superseded by faster pushes). |
-| MongoDB | HEALTHY | 0 Sentry errors. SHEAHAIRCARE-5 silent today. Watch one more day before closing. |
-| Sentry | HEALTHY | 0 error events in 24h. 0 open unresolved issues. Clean. |
+| Vercel | HEALTHY | Latest prod deploy READY — PR #1296 `fix(scripts): drop emailVerified from the purge safety gate`. 9/11 recent deploys READY. 2 BLOCKED (old, Jun 2026 — not active failures). |
+| MongoDB | UNKNOWN | Not directly connected. 0 Vercel runtime errors suggests no DB crashes. |
+| Sentry | NOT CONNECTED | Sentry MCP requires re-authorization. Last connected: 2026-07-20. |
 | PostHog | NOT CONNECTED | Appointment count unavailable. Booking funnel still a blind spot. |
 
 ---
@@ -24,34 +24,30 @@
 
 **0 errors** in last 24h.
 
-No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not fire overnight — either the connection held or Atlas recycled cleanly. One more clean day confirms resolution; one recurrence means the fix is still needed.
+Vercel runtime error scan: clean. No crashes, no unhandled exceptions, no failed routes.
 
 ---
 
-## Today's Shipping Activity (2026-07-19 sprint)
+## Recent Deployment Activity
 
-7 PRs merged to main. All production deploys READY. 2 preview PRs awaiting merge.
+No deployments in the last 53 days. Last 3 production deploys all READY on Sep 25, 2026:
 
-| PR | Title | Status |
-|---|---|---|
-| #907 | fix(marketing): remove unsubstantiated claims (ARB + CPA compliance) | Preview READY |
-| #906 | feat(legal): close ungated customer signup doors (POPIA s34/s35) | Preview READY |
-| #905 | docs(agents): record bank-encryption session + backfill retraction | Prod READY |
-| #904 | chore(scripts): remove bank backfill (nothing to migrate) | Prod READY |
-| #903 | feat(membership): meter concierge + paid client tier token budgets | Prod READY |
-| #901 | feat(security): encrypt stylist bank account at rest | Prod READY |
-| #900 | feat(tiers): cap Scale's unlimited AI quotas | Prod READY |
-| #899 | feat(security): encrypt customer payout bank account at rest | Prod READY |
-| #898 | docs(agents): record customer-creator marketplace session | Prod READY |
+| Deploy | PR | Description | State |
+|---|---|---|---|
+| dpl_FfX2JvV | #1296 | fix(scripts): drop emailVerified from purge safety gate | READY (prod) |
+| dpl_89WzQFu | #1295 | chore(scripts): purge tool for 2026-09-16 signup-spam accounts | READY (prod) |
+| dpl_5uEdRiJ | #1294 | fix(security): gate provider signup behind BotID, cap welcome-email flood | READY (prod) |
+
+**Context:** September sprint was a security response to a signup-spam attack on 2026-09-16. BotID protection and a targeted purge script were shipped and merged. App has been stable since.
 
 ---
 
 ## Action Items
 
-- [ ] **Merge PR #906** — POPIA s34/s35: Google One Tap + magic link customer signup were ungated for age verification. Code is ready and in preview. Merge before any user acquisition.
-- [ ] **Merge PR #907** — Strips fabricated testimonials and unsubstantiated claims (ARB Code s.II Cl. 4.1 + CPA s41). In preview and ready.
-- [ ] **Watch SHEAHAIRCARE-5 one more day** — 0 events today vs 1/day for the past week. If clean tomorrow, the Atlas pool-drain race may have self-resolved or the PR #885 guard finally caught it. If it fires again, escalate: raise Atlas minPoolSize to 2 or add a connection retry wrapper.
-- [ ] **Connect PostHog** — Appointment count still unavailable. Booking funnel visibility is a blind spot.
+- [ ] **Connect PostHog** — Appointment count has been unavailable since the AIOS launched. Booking funnel is a blind spot.
+- [ ] **Re-authorize Sentry MCP** — Authentication lapsed. Go to claude.ai connector settings to reconnect.
+- [ ] **Review 2 BLOCKED deploys** — `dpl_4xuRRkUpkDXchDaH2cMYJdz3XzW5` (Jun 2026) and `dpl_494wNqy6frHFhAtxe6h8ednZAyfu` (May 2026). Likely stuck previews — safe to ignore or dismiss.
+- [ ] **Assess 53-day quiet period** — No prod deploys since Sep 25. Is that intentional (stable, no new features)? Or has dev slowed? Worth a quick check-in.
 
 ---
 
@@ -68,11 +64,13 @@ No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not
 | 2026-07-16 | HEALTHY | 0 Sentry errors. 9 prod deploys. Security fix (#864) shipped. url.parse() still open. |
 | 2026-07-17 | HEALTHY | 0 errors. 0 new deploys. url.parse() not seen. App stable after billing sprint. |
 | 2026-07-18 | HEALTHY | 0 errors. 9 prod deploys. Paystack billing sprint complete. url.parse() resolved. |
-| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. 4 PRs shipped. PR #896 tier caps in preview. |
-| **2026-07-20** | **HEALTHY** | **0 errors. 7 PRs merged (security + legal compliance sprint). 2 preview PRs pending merge (#906 POPIA, #907 legal copy).** |
+| 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. 4 PRs shipped. |
+| 2026-07-20 | HEALTHY | 0 errors. 7 PRs merged (security + legal compliance sprint). 2 preview PRs pending. |
+| 2026-09-25 | HEALTHY | Security sprint: BotID gate on provider signup + spam purge. 3 prod deploys. |
+| **2026-11-17** | **HEALTHY** | **0 errors. 0 deploys in 53 days. App stable post-spam-patch sprint.** |
 
 ---
 
-_Generated: 2026-07-20 08:00 SAST_
+_Generated: 2026-11-17 08:00 SAST_
 _Vercel: [View project](https://vercel.com/mkmmogano-7968s-projects/sheahaircare)_
-_Sentry: [View errors](https://fl4ll.sentry.io/explore/discover/homepage/?dataset=errors&queryDataset=error-events&query=level%3Aerror&field=count%28%29&sort=-count%28%29&statsPeriod=24h&mode=aggregate&yAxis=count%28%29)_
+_Sentry: [Re-authorize at claude.ai connector settings]_
