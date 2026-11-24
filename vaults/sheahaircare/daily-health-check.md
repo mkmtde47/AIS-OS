@@ -1,4 +1,15 @@
-# Sheahaircare Daily Health — 2026-07-20
+# Sheahaircare Daily Health — 2026-11-24
+
+**Status:** HEALTHY
+**Appointments (24h):** N/A — PostHog not connected
+**Errors (24h):** 0
+**Uptime:** ~100% (latest prod deploy READY; 2 old BLOCKED from May 2026 plan limits, not runtime)
+**Top Issue:** Health monitor was dark Jul 20 → Nov 24 (127 days). PostHog still unconnected.
+**Recommendation:** Connect PostHog for appointment visibility. Confirm Sentry auth in claude.ai connector settings — it was unavailable today.
+
+---
+
+## Previous report: 2026-07-20
 
 **Status:** HEALTHY
 **Appointments (24h):** N/A — PostHog not connected
@@ -9,26 +20,38 @@
 
 ---
 
-## System Status
+## System Status — 2026-11-24
 
 | System | Status | Notes |
 |---|---|---|
-| Vercel | HEALTHY | Latest prod: PR #905 `docs/agents-sprint-2026-07-19-encryption` — READY. 18/20 recent deploys READY. 2 CANCELED (normal — superseded by faster pushes). |
-| MongoDB | HEALTHY | 0 Sentry errors. SHEAHAIRCARE-5 silent today. Watch one more day before closing. |
-| Sentry | HEALTHY | 0 error events in 24h. 0 open unresolved issues. Clean. |
-| PostHog | NOT CONNECTED | Appointment count unavailable. Booking funnel still a blind spot. |
+| Vercel | HEALTHY | Latest prod: PR #1296 `fix(scripts): drop emailVerified from purge safety gate` — READY. Active security sprint (BotID gate PR #1294, spam purge PRs #1295/#1296). |
+| MongoDB | UNKNOWN | Sentry unavailable today — can't confirm. 0 Vercel runtime errors is a positive indirect signal. |
+| Sentry | UNAVAILABLE | Requires re-auth in claude.ai connector settings. No error data available. |
+| PostHog | NOT CONNECTED | Appointment count unavailable. Booking funnel still a blind spot (127 days with no visibility). |
 
 ---
 
-## Runtime Errors
+## Runtime Errors — 2026-11-24
 
-**0 errors** in last 24h.
+**0 errors** in last 24h (Vercel runtime errors API).
 
-No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not fire overnight — either the connection held or Atlas recycled cleanly. One more clean day confirms resolution; one recurrence means the fix is still needed.
+Sentry unavailable — connector needs re-auth. Vercel shows zero runtime error clusters. No sign of SHEAHAIRCARE-5 (MongoDB /consumer race) in Vercel logs — likely long-resolved given the 127-day gap.
 
 ---
 
-## Today's Shipping Activity (2026-07-19 sprint)
+## Recent Shipping Activity (since last check — security/spam sprint)
+
+| PR | Title | Status |
+|---|---|---|
+| #1296 | fix(scripts): drop emailVerified from the purge safety gate | Prod READY |
+| #1295 | chore(scripts): purge tool for the 2026-09-16 signup-spam accounts | Prod READY |
+| #1294 | fix(security): gate provider signup behind BotID, cap welcome-email flood | Prod READY |
+
+3 prod deploys since last visible activity. All READY. Active spam/security response in progress.
+
+---
+
+## Previous Shipping Activity (2026-07-19 sprint)
 
 7 PRs merged to main. All production deploys READY. 2 preview PRs awaiting merge.
 
@@ -46,12 +69,19 @@ No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not
 
 ---
 
-## Action Items
+## Action Items — 2026-11-24
 
-- [ ] **Merge PR #906** — POPIA s34/s35: Google One Tap + magic link customer signup were ungated for age verification. Code is ready and in preview. Merge before any user acquisition.
-- [ ] **Merge PR #907** — Strips fabricated testimonials and unsubstantiated claims (ARB Code s.II Cl. 4.1 + CPA s41). In preview and ready.
-- [ ] **Watch SHEAHAIRCARE-5 one more day** — 0 events today vs 1/day for the past week. If clean tomorrow, the Atlas pool-drain race may have self-resolved or the PR #885 guard finally caught it. If it fires again, escalate: raise Atlas minPoolSize to 2 or add a connection retry wrapper.
-- [ ] **Connect PostHog** — Appointment count still unavailable. Booking funnel visibility is a blind spot.
+- [ ] **Re-auth Sentry** — Go to claude.ai connector settings and reconnect Sentry. Health checks are flying blind on errors without it.
+- [ ] **Connect PostHog** — Appointment count has been unavailable for 127 days. Booking funnel is a persistent blind spot.
+- [ ] **Confirm spam purge ran clean** — PRs #1294-1296 handled the 2026-09-16 signup-spam incident. Verify the purge script completed and no bot accounts remain.
+- [ ] **Resume daily health checks** — Monitor was dark Jul 20 → Nov 24. Consider reviewing the schedule trigger config.
+
+## Previous Action Items (2026-07-20 — now stale)
+
+- [x] **Merge PR #906** — POPIA s34/s35 (resolved — many PRs merged since)
+- [x] **Merge PR #907** — ARB/CPA compliance copy (resolved)
+- [x] **SHEAHAIRCARE-5** — No recurrence visible (resolved by Atlas or PR #885)
+- [ ] **Connect PostHog** — Still outstanding.
 
 ---
 
@@ -69,10 +99,12 @@ No Sentry events. SHEAHAIRCARE-5 (MongoDB idle-pool race on `/consumer`) did not
 | 2026-07-17 | HEALTHY | 0 errors. 0 new deploys. url.parse() not seen. App stable after billing sprint. |
 | 2026-07-18 | HEALTHY | 0 errors. 9 prod deploys. Paystack billing sprint complete. url.parse() resolved. |
 | 2026-07-19 | WARNING | 1 Sentry error — /consumer render fail 23:41 UTC. SHEAHAIRCARE-5 recurring. 4 PRs shipped. PR #896 tier caps in preview. |
-| **2026-07-20** | **HEALTHY** | **0 errors. 7 PRs merged (security + legal compliance sprint). 2 preview PRs pending merge (#906 POPIA, #907 legal copy).** |
+| 2026-07-20 | HEALTHY | 0 errors. 7 PRs merged (security + legal compliance sprint). 2 preview PRs pending merge (#906 POPIA, #907 legal copy). |
+| 2026-07-21 → 2026-11-23 | — | No checks run (monitor inactive for 127 days). |
+| **2026-11-24** | **HEALTHY** | **0 Vercel runtime errors. Prod READY (PR #1296). Spam/security sprint active. Sentry unavailable — needs re-auth.** |
 
 ---
 
-_Generated: 2026-07-20 08:00 SAST_
+_Generated: 2026-11-24 08:00 SAST_
 _Vercel: [View project](https://vercel.com/mkmmogano-7968s-projects/sheahaircare)_
-_Sentry: [View errors](https://fl4ll.sentry.io/explore/discover/homepage/?dataset=errors&queryDataset=error-events&query=level%3Aerror&field=count%28%29&sort=-count%28%29&statsPeriod=24h&mode=aggregate&yAxis=count%28%29)_
+_Sentry: [View errors](https://fl4ll.sentry.io/explore/discover/homepage/?dataset=errors&queryDataset=error-events&query=level%3Aerror&field=count%28%29&sort=-count%28%29&statsPeriod=24h&mode=aggregate&yAxis=count%28%29) — connector needs re-auth_
